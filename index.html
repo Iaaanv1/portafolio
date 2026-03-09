@@ -1,0 +1,3050 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebLocal — Páginas Web para Negocios Locales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet" />
+  <!-- GSAP + Plugins -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+
+  <style>
+    /* =============================================
+       VARIABLES & RESET
+    ============================================= */
+    :root {
+      --black: #080810;
+      --white: #ffffff;
+      --gray-100: #f5f5f7;
+      --gray-200: #e8e8ef;
+      --gray-400: #9898b0;
+      --gray-600: #52526a;
+      --gold: #d4a843;
+      --gold-light: #f0c96a;
+      --gold-dark: #a07a20;
+      --blue: #2563ff;
+      --blue-glow: rgba(37,99,255,0.35);
+      --surface: #0d0d1a;
+      --surface-2: #12121f;
+      --surface-3: #1a1a2e;
+      --border: rgba(255,255,255,0.07);
+      --border-gold: rgba(212,168,67,0.25);
+      --radius: 16px;
+      --radius-lg: 24px;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-serif: 'Playfair Display', serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--black);
+      color: var(--white);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* =============================================
+       UTILITIES
+    ============================================= */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section { padding: 120px 0; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(212,168,67,0.1);
+      border: 1px solid var(--border-gold);
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+
+    .tag::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* =============================================
+       SCROLL REVEAL
+    ============================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* =============================================
+       NOISE OVERLAY
+    ============================================= */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* =============================================
+       NAV
+    ============================================= */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 16px 0;
+      transition: all 0.4s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(8,8,16,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo span {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-logo .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--gray-400);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--white); }
+
+    .btn-nav {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 100px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: var(--black);
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(212,168,67,0.3);
+    }
+
+    .btn-nav:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 30px rgba(212,168,67,0.5);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* =============================================
+       HERO
+    ============================================= */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated mesh background */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero-bg .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: float-orb 8s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%);
+      top: -200px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(37,99,255,0.12) 0%, transparent 70%);
+      bottom: -100px;
+      left: -100px;
+      animation-delay: -3s;
+    }
+
+    .orb-3 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(212,168,67,0.08) 0%, transparent 70%);
+      top: 40%;
+      left: 40%;
+      animation-delay: -5s;
+    }
+
+    @keyframes float-orb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+
+    /* Grid lines */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      padding: 60px 0;
+    }
+
+    .hero-left {}
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(212,168,67,0.08);
+      border: 1px solid var(--border-gold);
+      border-radius: 100px;
+      padding: 8px 16px 8px 8px;
+      font-size: 12px;
+      color: var(--gold-light);
+      font-weight: 500;
+      margin-bottom: 32px;
+      animation: fadeInDown 0.8s ease both;
+    }
+
+    .hero-badge-dot {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: var(--black);
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(38px, 5vw, 64px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.9s 0.1s ease both;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--gray-400);
+      margin-bottom: 40px;
+      max-width: 460px;
+      animation: fadeInUp 0.9s 0.2s ease both;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.9s 0.3s ease both;
+    }
+
+    .btn-primary {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      padding: 16px 32px;
+      border-radius: 100px;
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 60%, var(--gold-dark) 100%);
+      color: var(--black);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 30px rgba(212,168,67,0.35), 0 4px 20px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 50px rgba(212,168,67,0.55), 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    .btn-primary:hover::before { opacity: 1; }
+
+    .btn-secondary {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 16px 32px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--white);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      animation: fadeInUp 0.9s 0.4s ease both;
+    }
+
+    .stat-item {}
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--gray-400);
+      margin-top: 2px;
+    }
+
+    /* Hero mockup */
+    .hero-right {
+      position: relative;
+      animation: fadeInRight 1s 0.2s ease both;
+    }
+
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .mockup-container {
+      position: relative;
+      perspective: 1000px;
+    }
+
+    .mockup-browser {
+      background: var(--surface-2);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow:
+        0 40px 80px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(255,255,255,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+      transform: rotateY(-8deg) rotateX(4deg);
+      transition: transform 0.6s ease;
+      animation: float-browser 6s ease-in-out infinite;
+    }
+
+    @keyframes float-browser {
+      0%, 100% { transform: rotateY(-8deg) rotateX(4deg) translateY(0); }
+      50% { transform: rotateY(-8deg) rotateX(4deg) translateY(-10px); }
+    }
+
+    .browser-bar {
+      background: var(--surface-3);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .browser-dots { display: flex; gap: 5px; }
+
+    .browser-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .browser-dots span:nth-child(1) { background: #ff5f57; }
+    .browser-dots span:nth-child(2) { background: #febc2e; }
+    .browser-dots span:nth-child(3) { background: #28c840; }
+
+    .browser-url {
+      flex: 1;
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 11px;
+      color: var(--gray-400);
+      font-family: monospace;
+    }
+
+    .browser-content {
+      height: 320px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated slides inside browser */
+    .browser-slides {
+      display: flex;
+      width: 400%;
+      height: 100%;
+      animation: slide-demos 12s ease-in-out infinite;
+    }
+
+    @keyframes slide-demos {
+      0%, 22% { transform: translateX(0); }
+      25%, 47% { transform: translateX(-25%); }
+      50%, 72% { transform: translateX(-50%); }
+      75%, 97% { transform: translateX(-75%); }
+      100% { transform: translateX(0); }
+    }
+
+    .browser-slide {
+      width: 25%;
+      height: 100%;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .bs-1 { background: linear-gradient(160deg, #0f0f1a 0%, #1a0a2e 100%); }
+    .bs-2 { background: linear-gradient(160deg, #0a1a0f 0%, #0d2e1a 100%); }
+    .bs-3 { background: linear-gradient(160deg, #1a0a0a 0%, #2e0d0d 100%); }
+    .bs-4 { background: linear-gradient(160deg, #0a0f1a 0%, #0d1a2e 100%); }
+
+    .slide-inner {
+      padding: 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .slide-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .slide-hero-text {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .slide-sub {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-bottom: 16px;
+    }
+
+    .slide-btn {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 100px;
+      display: inline-block;
+      width: fit-content;
+      margin-bottom: 16px;
+    }
+
+    .slide-cards {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .slide-card {
+      flex: 1;
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .slide-card-icon { font-size: 18px; margin-bottom: 6px; }
+    .slide-card-title { font-size: 10px; font-weight: 600; color: var(--gray-200); }
+
+    /* Floating elements on mockup */
+    .floating-card {
+      position: absolute;
+      background: rgba(20,20,35,0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      z-index: 2;
+    }
+
+    .floating-card-1 {
+      bottom: -20px;
+      left: -40px;
+      animation: float-card1 5s ease-in-out infinite;
+    }
+
+    .floating-card-2 {
+      top: -15px;
+      right: -30px;
+      animation: float-card2 4.5s ease-in-out infinite;
+    }
+
+    @keyframes float-card1 {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-8px) rotate(-2deg); }
+    }
+
+    @keyframes float-card2 {
+      0%, 100% { transform: translateY(0) rotate(1.5deg); }
+      50% { transform: translateY(-6px) rotate(1.5deg); }
+    }
+
+    .fc-label { font-size: 11px; color: var(--gray-400); margin-bottom: 4px; }
+    .fc-value {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .fc-change {
+      font-size: 11px;
+      color: #4ade80;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-top: 2px;
+    }
+
+    /* =============================================
+       PROBLEM SECTION
+    ============================================= */
+    #problema {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 64px;
+    }
+
+    .section-sub {
+      font-size: 16px;
+      color: var(--gray-400);
+      margin-top: 16px;
+      line-height: 1.7;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .problem-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .problem-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(212,168,67,0.25);
+      background: var(--surface-3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,168,67,0.1);
+    }
+
+    .problem-card:hover::before { opacity: 1; }
+
+    .problem-icon {
+      font-size: 36px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .problem-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .problem-desc {
+      font-size: 14px;
+      color: var(--gray-400);
+      line-height: 1.6;
+    }
+
+    /* =============================================
+       SOLUTION SECTION
+    ============================================= */
+    .solution-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .solution-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px 30px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: default;
+    }
+
+    .solution-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(212,168,67,0.08), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .solution-card:hover {
+      transform: translateY(-8px) scale(1.01);
+      border-color: rgba(212,168,67,0.3);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,168,67,0.15);
+    }
+
+    .solution-card:hover::after { opacity: 1; }
+
+    .solution-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: rgba(212,168,67,0.1);
+      border: 1px solid rgba(212,168,67,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .solution-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .solution-desc {
+      font-size: 14px;
+      color: var(--gray-400);
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* =============================================
+       DEMOS SECTION
+    ============================================= */
+    #demos {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .demos-slider-wrap {
+      position: relative;
+      margin-top: 64px;
+    }
+
+    .demos-slider {
+      display: flex;
+      gap: 24px;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .demo-card {
+      flex-shrink: 0;
+      width: calc(33.333% - 16px);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .demo-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(212,168,67,0.3);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+
+    .demo-screen {
+      height: 220px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-screen-bar {
+      background: rgba(0,0,0,0.3);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .demo-screen-dots { display: flex; gap: 4px; }
+    .demo-screen-dots span { width: 8px; height: 8px; border-radius: 50%; }
+    .demo-screen-dots span:nth-child(1) { background: #ff5f57; }
+    .demo-screen-dots span:nth-child(2) { background: #febc2e; }
+    .demo-screen-dots span:nth-child(3) { background: #28c840; }
+
+    .demo-screen-url {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 10px;
+      color: var(--gray-400);
+      font-family: monospace;
+    }
+
+    .demo-screen-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Barbería */
+    .demo-barber { background: linear-gradient(160deg, #0d0d14 0%, #1a1020 100%); }
+    .demo-barber .demo-accent { color: #c9a227; }
+    .demo-barber .demo-btn-color { background: linear-gradient(135deg, #c9a227, #a07a1c); color: #000; }
+
+    /* Dentista */
+    .demo-dental { background: linear-gradient(160deg, #0a1220 0%, #0d1a2e 100%); }
+    .demo-dental .demo-accent { color: #4a9eff; }
+    .demo-dental .demo-btn-color { background: linear-gradient(135deg, #4a9eff, #2563ff); color: #fff; }
+
+    /* Gimnasio */
+    .demo-gym { background: linear-gradient(160deg, #150a0a 0%, #2a0d0d 100%); }
+    .demo-gym .demo-accent { color: #ff4d4d; }
+    .demo-gym .demo-btn-color { background: linear-gradient(135deg, #ff4d4d, #cc0000); color: #fff; }
+
+    /* Restaurante */
+    .demo-restaurant { background: linear-gradient(160deg, #0a140a 0%, #0d2010 100%); }
+    .demo-restaurant .demo-accent { color: #4dcc7a; }
+    .demo-restaurant .demo-btn-color { background: linear-gradient(135deg, #4dcc7a, #1a9945); color: #fff; }
+
+    .demo-mock-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .demo-mock-logo {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .demo-mock-links { display: flex; gap: 10px; }
+    .demo-mock-links span { font-size: 9px; color: var(--gray-400); }
+
+    .demo-mock-hero-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .demo-mock-hero-sub {
+      font-size: 10px;
+      color: var(--gray-400);
+      margin: 6px 0 12px;
+    }
+
+    .demo-mock-btn {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 100px;
+      display: inline-block;
+    }
+
+    .demo-info {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+    }
+
+    .demo-name {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .demo-type {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-top: 2px;
+    }
+
+    .btn-demo {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 100px;
+      background: rgba(212,168,67,0.1);
+      border: 1px solid var(--border-gold);
+      color: var(--gold);
+      transition: all 0.3s;
+    }
+
+    .btn-demo:hover {
+      background: rgba(212,168,67,0.2);
+      color: var(--gold-light);
+    }
+
+    .slider-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 40px;
+    }
+
+    .slider-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .slider-btn:hover {
+      background: rgba(212,168,67,0.15);
+      border-color: var(--border-gold);
+      color: var(--gold);
+    }
+
+    .slider-dots {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slider-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .slider-dot.active {
+      width: 20px;
+      border-radius: 3px;
+      background: var(--gold);
+    }
+
+    /* =============================================
+       PRICING
+    ============================================= */
+    #precios { background: var(--black); }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 64px;
+    }
+
+    .pricing-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pricing-card.featured {
+      background: linear-gradient(160deg, #1a150a 0%, #201a0d 100%);
+      border-color: rgba(212,168,67,0.4);
+      box-shadow: 0 0 0 1px rgba(212,168,67,0.15), 0 40px 80px rgba(0,0,0,0.4);
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+
+    .pricing-card.featured:hover {
+      box-shadow: 0 0 0 1px rgba(212,168,67,0.25), 0 0 80px rgba(212,168,67,0.15), 0 30px 80px rgba(0,0,0,0.5);
+    }
+
+    .featured-badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: var(--black);
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .pricing-plan {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .pricing-name {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .pricing-price {
+      margin-bottom: 8px;
+    }
+
+    .price-amount {
+      font-family: var(--font-display);
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--white), var(--gray-400));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .pricing-card.featured .price-amount {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .price-currency {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      vertical-align: top;
+      margin-top: 8px;
+      display: inline-block;
+      color: var(--gray-400);
+    }
+
+    .price-note {
+      font-size: 13px;
+      color: var(--gray-400);
+      margin-bottom: 32px;
+    }
+
+    .pricing-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 24px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--gray-200);
+    }
+
+    .pricing-features li .check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(212,168,67,0.1);
+      border: 1px solid rgba(212,168,67,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 10px;
+      color: var(--gold);
+    }
+
+    .btn-pricing {
+      width: 100%;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      padding: 16px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .btn-pricing-outline {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--white);
+    }
+
+    .btn-pricing-outline:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .btn-pricing-gold {
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 60%, var(--gold-dark) 100%);
+      color: var(--black);
+      box-shadow: 0 0 30px rgba(212,168,67,0.3);
+    }
+
+    .btn-pricing-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 40px rgba(212,168,67,0.5);
+    }
+
+    /* =============================================
+       PROCESS
+    ============================================= */
+    #proceso {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-top: 64px;
+      position: relative;
+    }
+
+    .process-steps::before {
+      content: '';
+      position: absolute;
+      top: 30px;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--gold), transparent);
+      opacity: 0.3;
+    }
+
+    .process-step {
+      text-align: center;
+      position: relative;
+    }
+
+    .step-number {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      position: relative;
+      transition: all 0.4s ease;
+    }
+
+    .process-step:hover .step-number {
+      background: rgba(212,168,67,0.1);
+      border-color: rgba(212,168,67,0.4);
+      box-shadow: 0 0 30px rgba(212,168,67,0.2);
+    }
+
+    .step-number span {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .step-icon { font-size: 22px; margin-bottom: 16px; }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step-desc {
+      font-size: 14px;
+      color: var(--gray-400);
+      line-height: 1.6;
+    }
+
+    /* =============================================
+       TESTIMONIALS
+    ============================================= */
+    #testimonios { background: var(--black); overflow: hidden; }
+
+    .testimonials-track {
+      display: flex;
+      gap: 24px;
+      margin-top: 64px;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .testimonial-card {
+      flex-shrink: 0;
+      width: calc(33.333% - 16px);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px 32px;
+      transition: all 0.4s ease;
+    }
+
+    .testimonial-card:hover {
+      border-color: rgba(212,168,67,0.2);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .testimonial-stars {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .testimonial-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--gray-200);
+      margin-bottom: 28px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .author-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .author-name {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .author-biz {
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+
+    /* =============================================
+       CTA FINAL
+    ============================================= */
+    #cta {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(212,168,67,0.08) 0%, transparent 70%);
+    }
+
+    .cta-content { position: relative; z-index: 1; }
+
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      max-width: 800px;
+      margin: 0 auto 24px;
+    }
+
+    .cta-sub {
+      font-size: 18px;
+      color: var(--gray-400);
+      max-width: 500px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-whatsapp {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      padding: 18px 40px;
+      border-radius: 100px;
+      background: #25d366;
+      color: var(--white);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 40px rgba(37,211,102,0.35);
+    }
+
+    .btn-whatsapp:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 60px rgba(37,211,102,0.5), 0 8px 30px rgba(0,0,0,0.3);
+      background: #20ba5a;
+    }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--border);
+      padding: 60px 0 40px;
+    }
+
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand-desc {
+      font-size: 14px;
+      color: var(--gray-400);
+      line-height: 1.7;
+      margin-top: 16px;
+      max-width: 260px;
+    }
+
+    .footer-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      font-size: 14px;
+      color: var(--gray-400);
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--white); }
+
+    .footer-bottom {
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      color: var(--gray-600);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .social-link {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: var(--gray-400);
+      transition: all 0.3s;
+    }
+
+    .social-link:hover {
+      background: rgba(212,168,67,0.1);
+      border-color: var(--border-gold);
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    /* =============================================
+       RESPONSIVE
+    ============================================= */
+    @media (max-width: 1024px) {
+      .hero-content { grid-template-columns: 1fr; gap: 48px; }
+      .hero-right { display: none; }
+      .problem-grid { grid-template-columns: repeat(2, 1fr); }
+      .solution-grid { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+      .process-steps { grid-template-columns: repeat(2, 1fr); }
+      .process-steps::before { display: none; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .demo-card { width: calc(50% - 12px); }
+      .testimonial-card { width: calc(50% - 12px); }
+    }
+
+    @media (max-width: 768px) {
+      .section { padding: 80px 0; }
+      .nav-links { display: none; }
+      .btn-nav { display: none; }
+      .hamburger { display: flex; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .solution-grid { grid-template-columns: 1fr; }
+      .process-steps { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+      .hero-stats { flex-wrap: wrap; gap: 24px; }
+      .demo-card { width: calc(100% - 0px); }
+      .testimonial-card { width: calc(100% - 0px); }
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(8,8,16,0.97);
+      backdrop-filter: blur(20px);
+      z-index: 999;
+      padding: 100px 24px 40px;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gray-400);
+      transition: color 0.2s;
+    }
+
+    .mobile-menu a:hover { color: var(--white); }
+
+    .mobile-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 28px;
+      color: var(--gray-400);
+      cursor: pointer;
+    }
+
+    /* =============================================
+       GSAP PREMIUM ADDITIONS
+    ============================================= */
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 99998;
+      mix-blend-mode: difference;
+    }
+    .cursor-dot {
+      width: 8px; height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      width: 40px; height: 40px;
+      border: 1.5px solid rgba(212,168,67,0.8);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+    }
+    .cursor-ring.hovered {
+      width: 64px; height: 64px;
+      border-color: var(--gold);
+    }
+    @media (pointer: coarse) { .cursor { display: none; } }
+
+    /* Canvas particles */
+    #particleCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* Horizontal marquee / ticker */
+    .marquee-section {
+      padding: 24px 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      width: max-content;
+    }
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 40px;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      white-space: nowrap;
+    }
+    .marquee-item .marquee-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+    .marquee-item.highlight { color: var(--gold); }
+
+    /* Stat counters */
+    .stat-number { display: inline-block; }
+
+    /* Magnetic button wrapper */
+    .magnetic-wrap { display: inline-block; }
+
+    /* Reveal: override initial state for GSAP */
+    .reveal {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* Line reveal for section titles */
+    .split-line { overflow: hidden; }
+    .split-line .line { display: block; }
+
+    /* Pricing card 3D tilt */
+    .pricing-card { transform-style: preserve-3d; }
+
+    /* Progress bar */
+    #scroll-progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+      transform-origin: left center;
+      transform: scaleX(0);
+      z-index: 10001;
+      box-shadow: 0 0 8px rgba(212,168,67,0.6);
+    }
+
+    /* Section number accent */
+    .section-number {
+      position: absolute;
+      left: 0;
+      top: -20px;
+      font-family: var(--font-display);
+      font-size: 120px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.02);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -0.05em;
+    }
+
+    /* Glow beam effect on hero */
+    .hero-beam {
+      position: absolute;
+      width: 2px;
+      top: 0; bottom: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(212,168,67,0.6) 50%, transparent 100%);
+      filter: blur(1px);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* Card shine on hover */
+    .card-shine {
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+      transform: skewX(-20deg);
+      pointer-events: none;
+      z-index: 2;
+      transition: none;
+    }
+
+    /* Floating badge animation */
+    @keyframes badge-float {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-6px) rotate(-1deg); }
+    }
+    .floating-card-1 { animation: badge-float 5s ease-in-out infinite !important; }
+    .floating-card-2 { animation: badge-float 4.5s 1s ease-in-out infinite !important; }
+
+    /* Hero title split animation fallback */
+    .hero-title .word { display: inline-block; }
+  </style>
+</head>
+<body>
+
+  <!-- Scroll progress -->
+  <div id="scroll-progress"></div>
+
+  <!-- Custom cursor -->
+  <div class="cursor" id="cursorDot" style="position:fixed;z-index:99999;top:0;left:0;pointer-events:none;">
+    <div class="cursor-dot"></div>
+  </div>
+  <div class="cursor" id="cursorRing" style="position:fixed;z-index:99998;top:0;left:0;pointer-events:none;">
+    <div class="cursor-ring" id="cursorRingEl"></div>
+  </div>
+
+  <!-- Particle canvas -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- ============ NAV ============ -->
+  <nav id="navbar">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">
+          <div class="logo-dot"></div>
+          Web<span>Local</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#problema">Problema</a></li>
+          <li><a href="#solucion">Solución</a></li>
+          <li><a href="#demos">Demos</a></li>
+          <li><a href="#precios">Precios</a></li>
+          <li><a href="#proceso">Proceso</a></li>
+        </ul>
+        <a href="https://wa.me/1234567890?text=Hola,%20me%20interesa%20una%20página%20web" target="_blank" class="btn-nav">Hablar ahora →</a>
+        <button class="hamburger" id="hamburger" aria-label="Menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <span class="mobile-close" id="mobileClose">✕</span>
+    <a href="#problema" onclick="closeMobileMenu()">Problema</a>
+    <a href="#solucion" onclick="closeMobileMenu()">Solución</a>
+    <a href="#demos" onclick="closeMobileMenu()">Demos</a>
+    <a href="#precios" onclick="closeMobileMenu()">Precios</a>
+    <a href="#proceso" onclick="closeMobileMenu()">Proceso</a>
+    <a href="https://wa.me/1234567890" target="_blank" class="btn-primary" style="width:fit-content;margin-top:16px;">Hablar por WhatsApp</a>
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <section id="hero">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="hero-grid"></div>
+    </div>
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-left">
+          <div class="hero-badge">
+            <span class="hero-badge-dot">NUEVO</span>
+            Diseño web para negocios locales
+          </div>
+          <h1 class="hero-title">
+            Consigue más clientes con una<br>
+            <em class="gradient-text" style="font-family: var(--font-serif);">página web profesional</em>
+          </h1>
+          <p class="hero-sub">
+            Desarrollamos páginas web modernas con sistema de reservas y panel de administración para negocios locales. Listos en 7 días.
+          </p>
+          <div class="hero-cta">
+            <a href="#demos" class="btn-primary">
+              Ver demostraciones
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="https://wa.me/1234567890?text=Hola,%20me%20interesa%20una%20página%20web" target="_blank" class="btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              WhatsApp
+            </a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-number">50+</div>
+              <div class="stat-label">Negocios con página web</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">7 días</div>
+              <div class="stat-label">Tiempo de entrega</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">100%</div>
+              <div class="stat-label">Clientes satisfechos</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="mockup-container">
+            <!-- Floating card 1 -->
+            <div class="floating-card floating-card-1">
+              <div class="fc-label">Reservas este mes</div>
+              <div class="fc-value gradient-text">+127</div>
+              <div class="fc-change">▲ 34% vs mes anterior</div>
+            </div>
+
+            <!-- Floating card 2 -->
+            <div class="floating-card floating-card-2">
+              <div class="fc-label">Nuevos clientes</div>
+              <div class="fc-value" style="color:#4ade80;">+48</div>
+              <div class="fc-change">🔥 Récord del mes</div>
+            </div>
+
+            <!-- Browser mockup -->
+            <div class="mockup-browser">
+              <div class="browser-bar">
+                <div class="browser-dots">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="browser-url" id="browserUrl">barberia-elite.com</div>
+              </div>
+              <div class="browser-content">
+                <div class="browser-slides" id="browserSlides">
+
+                  <!-- Slide 1: Barbería -->
+                  <div class="browser-slide bs-1">
+                    <div class="slide-inner">
+                      <div class="demo-mock-nav">
+                        <span class="demo-mock-logo" style="color:#c9a227;">✂ BarberElite</span>
+                        <div class="demo-mock-links"><span>Inicio</span><span>Servicios</span><span>Reservar</span></div>
+                      </div>
+                      <div class="demo-mock-hero-title" style="color:#c9a227;">Cortes que<br>definen tu estilo</div>
+                      <div class="demo-mock-hero-sub">Barbería premium en el centro</div>
+                      <div class="demo-mock-btn" style="background:linear-gradient(135deg,#c9a227,#a07a1c);color:#000;">Reservar turno</div>
+                      <div class="slide-cards">
+                        <div class="slide-card"><div class="slide-card-icon">✂️</div><div class="slide-card-title">Corte clásico</div></div>
+                        <div class="slide-card"><div class="slide-card-icon">🧔</div><div class="slide-card-title">Barba</div></div>
+                        <div class="slide-card"><div class="slide-card-icon">💈</div><div class="slide-card-title">Combo</div></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Slide 2: Dentista -->
+                  <div class="browser-slide bs-4">
+                    <div class="slide-inner">
+                      <div class="demo-mock-nav">
+                        <span class="demo-mock-logo" style="color:#4a9eff;">🦷 DentalPlus</span>
+                        <div class="demo-mock-links"><span>Inicio</span><span>Servicios</span><span>Cita</span></div>
+                      </div>
+                      <div class="demo-mock-hero-title" style="color:#4a9eff;">Tu sonrisa<br>perfecta te espera</div>
+                      <div class="demo-mock-hero-sub">Clínica dental moderna</div>
+                      <div class="demo-mock-btn" style="background:linear-gradient(135deg,#4a9eff,#2563ff);color:#fff;">Agendar cita</div>
+                      <div class="slide-cards">
+                        <div class="slide-card"><div class="slide-card-icon">🦷</div><div class="slide-card-title">Limpieza</div></div>
+                        <div class="slide-card"><div class="slide-card-icon">⚪</div><div class="slide-card-title">Blanqueamiento</div></div>
+                        <div class="slide-card"><div class="slide-card-icon">🩺</div><div class="slide-card-title">Ortodoncia</div></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Slide 3: Gimnasio -->
+                  <div class="browser-slide bs-3">
+                    <div class="slide-inner">
+                      <div class="demo-mock-nav">
+                        <span class="demo-mock-logo" style="color:#ff4d4d;">⚡ PowerGym</span>
+                        <div class="demo-mock-links"><span>Inicio</span><span>Planes</span><span>Clases</span></div>
+                      </div>
+                      <div class="demo-mock-hero-title" style="color:#ff4d4d;">Entrena sin<br>límites</div>
+                      <div class="demo-mock-hero-sub">El gimnasio que te impulsa</div>
+                      <div class="demo-mock-btn" style="background:linear-gradient(135deg,#ff4d4d,#cc0000);color:#fff;">Ver membresías</div>
+                      <div class="slide-cards">
+                        <div class="slide-card"><div class="slide-card-icon">🏋️</div><div class="slide-card-title">Pesas</div></div>
+                        <div class="slide-card"><div class="slide-card-icon">🧘</div><div class="slide-card-title">Yoga</div></div>
+                        <div class="slide-card"><div class="slide-card-icon">🥊</div><div class="slide-card-title">Cardio</div></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Slide 4: Restaurante -->
+                  <div class="browser-slide bs-2">
+                    <div class="slide-inner">
+                      <div class="demo-mock-nav">
+                        <span class="demo-mock-logo" style="color:#4dcc7a;">🍽 La Fogata</span>
+                        <div class="demo-mock-links"><span>Menú</span><span>Reservar</span><span>Nosotros</span></div>
+                      </div>
+                      <div class="demo-mock-hero-title" style="color:#4dcc7a;">Sabores que<br>enamoran</div>
+                      <div class="demo-mock-hero-sub">Cocina artesanal auténtica</div>
+                      <div class="demo-mock-btn" style="background:linear-gradient(135deg,#4dcc7a,#1a9945);color:#fff;">Ver menú</div>
+                      <div class="slide-cards">
+                        <div class="slide-card"><div class="slide-card-icon">🥩</div><div class="slide-card-title">Parrillas</div></div>
+                        <div class="slide-card"><div class="slide-card-icon">🥗</div><div class="slide-card-title">Ensaladas</div></div>
+                        <div class="slide-card"><div class="slide-card-icon">🍰</div><div class="slide-card-title">Postres</div></div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARQUEE ============ -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marqueeTrack">
+      <div class="marquee-item highlight">Barberías <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Diseño premium</div>
+      <div class="marquee-item highlight">Dentistas <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Sistema de reservas</div>
+      <div class="marquee-item highlight">Gimnasios <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Panel admin</div>
+      <div class="marquee-item highlight">Restaurantes <span class="marquee-dot"></span></div>
+      <div class="marquee-item">SEO local</div>
+      <div class="marquee-item highlight">Spas <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Entrega en 7 días</div>
+      <div class="marquee-item highlight">Clínicas <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Optimizado para móvil</div>
+      <!-- duplicado para loop -->
+      <div class="marquee-item highlight">Barberías <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Diseño premium</div>
+      <div class="marquee-item highlight">Dentistas <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Sistema de reservas</div>
+      <div class="marquee-item highlight">Gimnasios <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Panel admin</div>
+      <div class="marquee-item highlight">Restaurantes <span class="marquee-dot"></span></div>
+      <div class="marquee-item">SEO local</div>
+      <div class="marquee-item highlight">Spas <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Entrega en 7 días</div>
+    </div>
+  </div>
+
+  <!-- ============ PROBLEMA ============ -->
+  <section id="problema" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="tag">El problema</div>
+        <h2 class="section-title">Muchos negocios pierden clientes<br>por no tener presencia online</h2>
+        <p class="section-sub">El 80% de las personas busca un negocio en Google antes de visitarlo. ¿Apareces tú?</p>
+      </div>
+      <div class="problem-grid">
+        <div class="problem-card reveal reveal-delay-1">
+          <span class="problem-icon">🌐</span>
+          <div class="problem-title">No tienen página web</div>
+          <p class="problem-desc">Cuando alguien te busca en Google, no te encuentra. La competencia sí aparece y se lleva al cliente.</p>
+        </div>
+        <div class="problem-card reveal reveal-delay-2">
+          <span class="problem-icon">📱</span>
+          <div class="problem-title">Dependen solo de Instagram</div>
+          <p class="problem-desc">Las redes son inestables. El algoritmo cambia y tus clientes potenciales dejan de verte.</p>
+        </div>
+        <div class="problem-card reveal reveal-delay-3">
+          <span class="problem-icon">📅</span>
+          <div class="problem-title">No reciben reservas online</div>
+          <p class="problem-desc">Cada reserva es un mensaje por WhatsApp. Pierdes tiempo y oportunidades cuando no estás disponible.</p>
+        </div>
+        <div class="problem-card reveal reveal-delay-4">
+          <span class="problem-icon">🌙</span>
+          <div class="problem-title">Pierden clientes fuera de horario</div>
+          <p class="problem-desc">Un cliente interesado a las 11pm no puede contactarte. Al día siguiente, ya fue a otra parte.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOLUCIÓN ============ -->
+  <section id="solucion" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="tag">La solución</div>
+        <h2 class="section-title">Todo lo que tu negocio necesita<br><span class="gradient-text">para crecer</span></h2>
+        <p class="section-sub">Una página web profesional que trabaja por ti las 24 horas, los 7 días de la semana.</p>
+      </div>
+      <div class="solution-grid">
+        <div class="solution-card reveal reveal-delay-1">
+          <div class="solution-icon">🎨</div>
+          <div class="solution-title">Página web profesional</div>
+          <p class="solution-desc">Diseño moderno y elegante adaptado a la identidad de tu negocio. Primera impresión que convierte visitantes en clientes.</p>
+        </div>
+        <div class="solution-card reveal reveal-delay-2">
+          <div class="solution-icon">📆</div>
+          <div class="solution-title">Sistema de reservas online</div>
+          <p class="solution-desc">Tus clientes pueden reservar turnos o citas directamente desde tu página, a cualquier hora del día.</p>
+        </div>
+        <div class="solution-card reveal reveal-delay-3">
+          <div class="solution-icon">⚙️</div>
+          <div class="solution-title">Panel de administración</div>
+          <p class="solution-desc">Gestiona reservas, servicios y contenido desde un panel simple. Sin conocimientos técnicos necesarios.</p>
+        </div>
+        <div class="solution-card reveal reveal-delay-1">
+          <div class="solution-icon">📱</div>
+          <div class="solution-title">Optimización para celular</div>
+          <p class="solution-desc">El 70% de tus clientes te buscan desde el celular. Tu página se verá perfecta en cualquier dispositivo.</p>
+        </div>
+        <div class="solution-card reveal reveal-delay-2">
+          <div class="solution-icon">🔍</div>
+          <div class="solution-title">SEO local optimizado</div>
+          <p class="solution-desc">Aparece en Google cuando alguien busca tu tipo de negocio en tu ciudad. Más visibilidad, más clientes.</p>
+        </div>
+        <div class="solution-card reveal reveal-delay-3">
+          <div class="solution-icon">⚡</div>
+          <div class="solution-title">Velocidad & rendimiento</div>
+          <p class="solution-desc">Páginas ultrarrápidas que cargan en menos de 2 segundos. Google premia la velocidad con mejor posicionamiento.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEMOS ============ -->
+  <section id="demos" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="tag">Demos reales</div>
+        <h2 class="section-title">Mira algunos<br><span class="gradient-text">ejemplos de nuestro trabajo</span></h2>
+        <p class="section-sub">Cada página es diseñada a medida para el tipo de negocio.</p>
+      </div>
+      <div class="demos-slider-wrap reveal">
+        <div class="demos-slider" id="demosSlider">
+
+          <!-- Barbería -->
+          <div class="demo-card">
+            <div class="demo-screen demo-barber">
+              <div class="demo-screen-bar">
+                <div class="demo-screen-dots"><span></span><span></span><span></span></div>
+                <div class="demo-screen-url">barberia-elite.com</div>
+              </div>
+              <div class="demo-screen-content">
+                <div>
+                  <div class="demo-mock-nav">
+                    <span class="demo-mock-logo demo-accent">✂ BarberElite</span>
+                    <div class="demo-mock-links"><span>Servicios</span><span>Reservar</span></div>
+                  </div>
+                  <div class="demo-mock-hero-title demo-accent">Cortes que<br>definen tu estilo</div>
+                  <div class="demo-mock-hero-sub">Barbería premium · Centro</div>
+                  <div class="demo-mock-btn demo-btn-color">Reservar turno →</div>
+                </div>
+                <div class="slide-cards">
+                  <div class="slide-card"><div class="slide-card-icon">✂️</div><div class="slide-card-title">Corte clásico</div></div>
+                  <div class="slide-card"><div class="slide-card-icon">🧔</div><div class="slide-card-title">Barba</div></div>
+                  <div class="slide-card"><div class="slide-card-icon">💈</div><div class="slide-card-title">Combo</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="demo-info">
+              <div>
+                <div class="demo-name">BarberElite</div>
+                <div class="demo-type">✂️ Barbería</div>
+              </div>
+              <a href="#" class="btn-demo">Ver demo →</a>
+            </div>
+          </div>
+
+          <!-- Dentista -->
+          <div class="demo-card">
+            <div class="demo-screen demo-dental">
+              <div class="demo-screen-bar">
+                <div class="demo-screen-dots"><span></span><span></span><span></span></div>
+                <div class="demo-screen-url">clinica-dentalplus.com</div>
+              </div>
+              <div class="demo-screen-content">
+                <div>
+                  <div class="demo-mock-nav">
+                    <span class="demo-mock-logo demo-accent">🦷 DentalPlus</span>
+                    <div class="demo-mock-links"><span>Servicios</span><span>Cita</span></div>
+                  </div>
+                  <div class="demo-mock-hero-title demo-accent">Tu sonrisa<br>perfecta te espera</div>
+                  <div class="demo-mock-hero-sub">Clínica dental moderna</div>
+                  <div class="demo-mock-btn demo-btn-color">Agendar cita →</div>
+                </div>
+                <div class="slide-cards">
+                  <div class="slide-card"><div class="slide-card-icon">🦷</div><div class="slide-card-title">Limpieza</div></div>
+                  <div class="slide-card"><div class="slide-card-icon">⚪</div><div class="slide-card-title">Blanqueamiento</div></div>
+                  <div class="slide-card"><div class="slide-card-icon">🩺</div><div class="slide-card-title">Ortodoncia</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="demo-info">
+              <div>
+                <div class="demo-name">DentalPlus</div>
+                <div class="demo-type">🦷 Clínica dental</div>
+              </div>
+              <a href="#" class="btn-demo">Ver demo →</a>
+            </div>
+          </div>
+
+          <!-- Gimnasio -->
+          <div class="demo-card">
+            <div class="demo-screen demo-gym">
+              <div class="demo-screen-bar">
+                <div class="demo-screen-dots"><span></span><span></span><span></span></div>
+                <div class="demo-screen-url">powergym.com</div>
+              </div>
+              <div class="demo-screen-content">
+                <div>
+                  <div class="demo-mock-nav">
+                    <span class="demo-mock-logo demo-accent">⚡ PowerGym</span>
+                    <div class="demo-mock-links"><span>Planes</span><span>Clases</span></div>
+                  </div>
+                  <div class="demo-mock-hero-title demo-accent">Entrena sin<br>límites</div>
+                  <div class="demo-mock-hero-sub">El gimnasio que te impulsa</div>
+                  <div class="demo-mock-btn demo-btn-color">Ver membresías →</div>
+                </div>
+                <div class="slide-cards">
+                  <div class="slide-card"><div class="slide-card-icon">🏋️</div><div class="slide-card-title">Pesas</div></div>
+                  <div class="slide-card"><div class="slide-card-icon">🧘</div><div class="slide-card-title">Yoga</div></div>
+                  <div class="slide-card"><div class="slide-card-icon">🥊</div><div class="slide-card-title">Cardio</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="demo-info">
+              <div>
+                <div class="demo-name">PowerGym</div>
+                <div class="demo-type">🏋️ Gimnasio</div>
+              </div>
+              <a href="#" class="btn-demo">Ver demo →</a>
+            </div>
+          </div>
+
+          <!-- Restaurante -->
+          <div class="demo-card">
+            <div class="demo-screen demo-restaurant">
+              <div class="demo-screen-bar">
+                <div class="demo-screen-dots"><span></span><span></span><span></span></div>
+                <div class="demo-screen-url">lafogata-restaurante.com</div>
+              </div>
+              <div class="demo-screen-content">
+                <div>
+                  <div class="demo-mock-nav">
+                    <span class="demo-mock-logo demo-accent">🍽 La Fogata</span>
+                    <div class="demo-mock-links"><span>Menú</span><span>Reservar</span></div>
+                  </div>
+                  <div class="demo-mock-hero-title demo-accent">Sabores que<br>enamoran</div>
+                  <div class="demo-mock-hero-sub">Cocina artesanal auténtica</div>
+                  <div class="demo-mock-btn demo-btn-color">Ver menú →</div>
+                </div>
+                <div class="slide-cards">
+                  <div class="slide-card"><div class="slide-card-icon">🥩</div><div class="slide-card-title">Parrillas</div></div>
+                  <div class="slide-card"><div class="slide-card-icon">🥗</div><div class="slide-card-title">Ensaladas</div></div>
+                  <div class="slide-card"><div class="slide-card-icon">🍰</div><div class="slide-card-title">Postres</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="demo-info">
+              <div>
+                <div class="demo-name">La Fogata</div>
+                <div class="demo-type">🍽️ Restaurante</div>
+              </div>
+              <a href="#" class="btn-demo">Ver demo →</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Slider controls -->
+      <div class="slider-controls reveal">
+        <button class="slider-btn" id="demoPrev">←</button>
+        <div class="slider-dots">
+          <div class="slider-dot active" data-index="0"></div>
+          <div class="slider-dot" data-index="1"></div>
+          <div class="slider-dot" data-index="2"></div>
+        </div>
+        <button class="slider-btn" id="demoNext">→</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRECIOS ============ -->
+  <section id="precios" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="tag">Precios transparentes</div>
+        <h2 class="section-title">Elige el plan perfecto<br><span class="gradient-text">para tu negocio</span></h2>
+        <p class="section-sub">Sin costos ocultos. Sin sorpresas. Pago único, tu página es tuya.</p>
+      </div>
+      <div class="pricing-grid">
+
+        <!-- Plan 1 -->
+        <div class="pricing-card reveal reveal-delay-1">
+          <div class="pricing-plan">Plan Básico</div>
+          <div class="pricing-name">Landing Profesional</div>
+          <div class="pricing-price">
+            <span class="price-currency">$</span><span class="price-amount">120</span>
+          </div>
+          <div class="price-note">Pago único · Entrega en 5 días</div>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Diseño profesional personalizado</li>
+            <li><span class="check">✓</span> Hasta 5 secciones</li>
+            <li><span class="check">✓</span> Formulario de contacto</li>
+            <li><span class="check">✓</span> Optimizado para celular</li>
+            <li><span class="check">✓</span> SEO básico incluido</li>
+            <li><span class="check">✓</span> Hosting 1 año incluido</li>
+          </ul>
+          <a href="https://wa.me/1234567890?text=Quiero%20el%20Plan%20Básico%20de%20$120" target="_blank" class="btn-pricing btn-pricing-outline">Contratar ahora →</a>
+        </div>
+
+        <!-- Plan 2 (featured) -->
+        <div class="pricing-card featured reveal reveal-delay-2">
+          <div class="featured-badge">MÁS POPULAR</div>
+          <div class="pricing-plan">Plan Profesional</div>
+          <div class="pricing-name">Landing + Reservas</div>
+          <div class="pricing-price">
+            <span class="price-currency" style="color:var(--gold);">$</span><span class="price-amount">250</span>
+          </div>
+          <div class="price-note">Pago único · Entrega en 7 días</div>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Todo del plan básico</li>
+            <li><span class="check">✓</span> Sistema de reservas online</li>
+            <li><span class="check">✓</span> Notificaciones automáticas</li>
+            <li><span class="check">✓</span> Calendario de disponibilidad</li>
+            <li><span class="check">✓</span> Galería de fotos/servicios</li>
+            <li><span class="check">✓</span> Google Maps integrado</li>
+            <li><span class="check">✓</span> Botón WhatsApp flotante</li>
+          </ul>
+          <a href="https://wa.me/1234567890?text=Quiero%20el%20Plan%20Profesional%20de%20$250" target="_blank" class="btn-pricing btn-pricing-gold">Contratar ahora →</a>
+        </div>
+
+        <!-- Plan 3 -->
+        <div class="pricing-card reveal reveal-delay-3">
+          <div class="pricing-plan">Plan Premium</div>
+          <div class="pricing-name">Sistema Completo</div>
+          <div class="pricing-price">
+            <span class="price-currency">$</span><span class="price-amount">400</span>
+          </div>
+          <div class="price-note">Pago único · Entrega en 10 días</div>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Todo del plan profesional</li>
+            <li><span class="check">✓</span> Panel de administración</li>
+            <li><span class="check">✓</span> Gestión de clientes (CRM)</li>
+            <li><span class="check">✓</span> Reportes y estadísticas</li>
+            <li><span class="check">✓</span> Blog/noticias del negocio</li>
+            <li><span class="check">✓</span> Pagos online integrados</li>
+            <li><span class="check">✓</span> Soporte prioritario 3 meses</li>
+          </ul>
+          <a href="https://wa.me/1234567890?text=Quiero%20el%20Plan%20Premium%20de%20$400" target="_blank" class="btn-pricing btn-pricing-outline">Contratar ahora →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROCESO ============ -->
+  <section id="proceso" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="tag">Proceso simple</div>
+        <h2 class="section-title">De cero a online<br><span class="gradient-text">en 4 pasos</span></h2>
+        <p class="section-sub">Un proceso claro y sin complicaciones para que puedas enfocarte en tu negocio.</p>
+      </div>
+      <div class="process-steps">
+        <div class="process-step reveal reveal-delay-1">
+          <div class="step-number"><span>01</span></div>
+          <div class="step-icon">🔍</div>
+          <div class="step-title">Analizamos tu negocio</div>
+          <p class="step-desc">Una llamada de 30 minutos para entender tu negocio, tus clientes y tus objetivos.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-2">
+          <div class="step-number"><span>02</span></div>
+          <div class="step-icon">🎨</div>
+          <div class="step-title">Diseñamos tu página</div>
+          <p class="step-desc">Creamos un diseño a medida con tu identidad visual. Te mostramos el resultado antes de publicar.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-3">
+          <div class="step-number"><span>03</span></div>
+          <div class="step-icon">🚀</div>
+          <div class="step-title">Publicamos tu sitio</div>
+          <p class="step-desc">Lanzamos tu página con dominio, hosting y todas las configuraciones listas.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-4">
+          <div class="step-number"><span>04</span></div>
+          <div class="step-icon">🎉</div>
+          <div class="step-title">Empiezas a recibir clientes</div>
+          <p class="step-desc">Tu página trabaja por ti 24/7 atrayendo nuevos clientes y recibiendo reservas automáticamente.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIOS ============ -->
+  <section id="testimonios" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="tag">Testimonios</div>
+        <h2 class="section-title">Lo que dicen<br><span class="gradient-text">nuestros clientes</span></h2>
+      </div>
+      <div style="overflow:hidden;">
+        <div class="testimonials-track" id="testimonialsTrack">
+
+          <div class="testimonial-card reveal">
+            <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">"Antes dependía solo de Instagram. Ahora recibo reservas por la página a toda hora, incluso de madrugada. La inversión se pagó sola en el primer mes."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar" style="background:rgba(201,162,39,0.15);">💈</div>
+              <div>
+                <div class="author-name">Carlos Mendoza</div>
+                <div class="author-biz">BarberElite · Ciudad de México</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card reveal reveal-delay-1">
+            <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">"El diseño quedó increíble. Mis pacientes me dicen que la página les da mucha confianza. Las citas online redujeron mis llamadas telefónicas un 60%."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar" style="background:rgba(74,158,255,0.15);">🦷</div>
+              <div>
+                <div class="author-name">Dra. Ana García</div>
+                <div class="author-biz">DentalPlus · Guadalajara</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card reveal reveal-delay-2">
+            <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">"En tres semanas ya teníamos 40 nuevos socios que llegaron por la página web. El sistema de membresías online es espectacular. Vale cada peso."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar" style="background:rgba(255,77,77,0.15);">🏋️</div>
+              <div>
+                <div class="author-name">Roberto Sánchez</div>
+                <div class="author-biz">PowerGym · Monterrey</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card reveal reveal-delay-3">
+            <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">"Nuestras reservas de mesa aumentaron 45% en el primer mes. La página se ve de lujo y los clientes siempre nos preguntan quién la hizo. Totalmente recomendado."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar" style="background:rgba(77,204,122,0.15);">🍽️</div>
+              <div>
+                <div class="author-name">Lucía Ramírez</div>
+                <div class="author-biz">La Fogata · Puebla</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="slider-controls reveal" style="margin-top:32px;">
+        <button class="slider-btn" id="testPrev">←</button>
+        <div class="slider-dots">
+          <div class="slider-dot active" data-slider="test" data-index="0"></div>
+          <div class="slider-dot" data-slider="test" data-index="1"></div>
+        </div>
+        <button class="slider-btn" id="testNext">→</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section id="cta" class="section">
+    <div class="cta-bg"></div>
+    <div class="container">
+      <div class="cta-content reveal">
+        <div class="tag" style="display:inline-flex;margin-bottom:32px;">¿Listo para crecer?</div>
+        <h2 class="cta-title">
+          ¿Listo para tener tu<br>
+          <span class="gradient-text" style="font-family:var(--font-serif);font-style:italic;">página web?</span>
+        </h2>
+        <p class="cta-sub">
+          Únete a los más de 50 negocios que ya tienen presencia online y reciben clientes mientras duermen.
+        </p>
+        <div class="cta-buttons">
+          <a href="https://wa.me/1234567890?text=Hola,%20quiero%20información%20sobre%20páginas%20web%20para%20mi%20negocio" target="_blank" class="btn-whatsapp">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Hablar por WhatsApp ahora
+          </a>
+          <a href="#precios" class="btn-secondary" style="padding:18px 36px;font-size:15px;">Ver precios →</a>
+        </div>
+        <p style="font-size:13px;color:var(--gray-600);margin-top:24px;">
+          ✓ Respuesta en menos de 1 hora &nbsp;·&nbsp; ✓ Sin compromiso &nbsp;·&nbsp; ✓ Consulta gratuita
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div>
+          <a href="#" class="nav-logo" style="font-size:22px;">
+            <div class="logo-dot"></div>
+            Web<span>Local</span>
+          </a>
+          <p class="footer-brand-desc">
+            Desarrollamos páginas web modernas para negocios locales. Más visibilidad, más reservas, más clientes.
+          </p>
+        </div>
+        <div>
+          <div class="footer-title">Servicios</div>
+          <ul class="footer-links">
+            <li><a href="#solucion">Landing básica</a></li>
+            <li><a href="#solucion">Landing + reservas</a></li>
+            <li><a href="#solucion">Sistema completo</a></li>
+            <li><a href="#solucion">SEO local</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-title">Demos</div>
+          <ul class="footer-links">
+            <li><a href="#demos">Demo Barbería</a></li>
+            <li><a href="#demos">Demo Dentista</a></li>
+            <li><a href="#demos">Demo Gimnasio</a></li>
+            <li><a href="#demos">Demo Restaurante</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-title">Contacto</div>
+          <ul class="footer-links">
+            <li><a href="https://wa.me/1234567890" target="_blank">WhatsApp</a></li>
+            <li><a href="mailto:hola@weblocal.com">Email</a></li>
+            <li><a href="#" target="_blank">Instagram</a></li>
+            <li><a href="#" target="_blank">Facebook</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 WebLocal. Todos los derechos reservados.</div>
+        <div class="social-links">
+          <a href="#" class="social-link" title="Instagram">📸</a>
+          <a href="#" class="social-link" title="Facebook">📘</a>
+          <a href="https://wa.me/1234567890" target="_blank" class="social-link" title="WhatsApp">💬</a>
+          <a href="mailto:hola@weblocal.com" class="social-link" title="Email">✉️</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ SCRIPTS ============ -->
+  <script>
+  // Wait for GSAP to load
+  window.addEventListener('load', () => {
+
+    // =============================================
+    // GSAP SETUP
+    // =============================================
+    gsap.registerPlugin(ScrollTrigger, TextPlugin, ScrollToPlugin);
+
+    // =============================================
+    // SCROLL PROGRESS BAR
+    // =============================================
+    gsap.to('#scroll-progress', {
+      scaleX: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: 'body',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.3
+      }
+    });
+
+    // =============================================
+    // CUSTOM CURSOR
+    // =============================================
+    const cursorDot  = document.getElementById('cursorDot');
+    const cursorRing = document.getElementById('cursorRing');
+    const ringEl     = document.getElementById('cursorRingEl');
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let ringX  = mouseX, ringY = mouseY;
+
+    window.addEventListener('mousemove', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      gsap.to(cursorDot, { x: mouseX, y: mouseY, duration: 0.08, ease: 'power2.out' });
+    });
+
+    // Lag the ring
+    (function animateRing() {
+      ringX += (mouseX - ringX) * 0.12;
+      ringY += (mouseY - ringY) * 0.12;
+      gsap.set(cursorRing, { x: ringX, y: ringY });
+      requestAnimationFrame(animateRing);
+    })();
+
+    // Hover interactions
+    document.querySelectorAll('a, button, .pricing-card, .demo-card, .solution-card, .problem-card').forEach(el => {
+      el.addEventListener('mouseenter', () => ringEl.classList.add('hovered'));
+      el.addEventListener('mouseleave', () => ringEl.classList.remove('hovered'));
+    });
+
+    // =============================================
+    // PARTICLE CANVAS
+    // =============================================
+    const canvas = document.getElementById('particleCanvas');
+    const ctx    = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x    = Math.random() * canvas.width;
+        this.y    = Math.random() * canvas.height;
+        this.size = Math.random() * 1.5 + 0.3;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.life   = Math.random();
+        this.maxLife = 0.4 + Math.random() * 0.4;
+        this.gold = Math.random() > 0.7;
+      }
+      update() {
+        this.x += this.speedX; this.y += this.speedY;
+        this.life += 0.002;
+        if (this.life > this.maxLife || this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+      }
+      draw() {
+        const alpha = Math.sin((this.life / this.maxLife) * Math.PI) * 0.6;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.gold
+          ? `rgba(212,168,67,${alpha})`
+          : `rgba(255,255,255,${alpha * 0.4})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // =============================================
+    // NAV SCROLL
+    // =============================================
+    const navbar = document.getElementById('navbar');
+    ScrollTrigger.create({
+      start: 'top -60',
+      onUpdate: self => navbar.classList.toggle('scrolled', self.scroll() > 60)
+    });
+
+    // =============================================
+    // HERO ENTRANCE — staggered GSAP timeline
+    // =============================================
+    const heroTl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+
+    heroTl
+      .from('.hero-badge', { y: -30, opacity: 0, duration: 0.8 })
+      .from('.hero-title', {
+        y: 60, opacity: 0, duration: 1,
+        onComplete: () => startTypewriterLoop()
+      }, '-=0.4')
+      .from('.hero-sub',  { y: 40, opacity: 0, duration: 0.8 }, '-=0.6')
+      .from('.hero-cta > *', { y: 30, opacity: 0, stagger: 0.15, duration: 0.7 }, '-=0.5')
+      .from('.hero-stats .stat-item', { y: 20, opacity: 0, stagger: 0.1, duration: 0.6 }, '-=0.4')
+      .from('.hero-right', { x: 60, opacity: 0, duration: 1.2, ease: 'expo.out' }, '-=0.9')
+      .from('.floating-card-1', { x: -40, opacity: 0, duration: 0.8, ease: 'back.out(1.7)' }, '-=0.5')
+      .from('.floating-card-2', { x: 40,  opacity: 0, duration: 0.8, ease: 'back.out(1.7)' }, '-=0.6');
+
+    // Typewriter for gradient text
+    function startTypewriterLoop() {
+      const phrases = ['página web profesional', 'sistema de reservas', 'presencia digital', 'más clientes hoy'];
+      const el = document.querySelector('.hero-title .gradient-text');
+      if (!el) return;
+      let idx = 0;
+      function cycle() {
+        gsap.to(el, {
+          duration: 0.6, opacity: 0, y: -10, ease: 'power2.in',
+          onComplete: () => {
+            el.textContent = phrases[idx++ % phrases.length];
+            gsap.to(el, { duration: 0.6, opacity: 1, y: 0, ease: 'power2.out' });
+          }
+        });
+      }
+      setInterval(cycle, 3200);
+    }
+
+    // Hero orbs mouse parallax
+    document.addEventListener('mousemove', e => {
+      const x = (e.clientX / window.innerWidth  - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 20;
+      gsap.to('.orb-1', { x: x * 0.8, y: y * 0.8, duration: 2, ease: 'power2.out' });
+      gsap.to('.orb-2', { x: -x * 0.5, y: -y * 0.5, duration: 2, ease: 'power2.out' });
+      gsap.to('.orb-3', { x: x * 1.2, y: y * 1.2, duration: 2, ease: 'power2.out' });
+    });
+
+    // Stat number counters
+    document.querySelectorAll('.stat-number').forEach(el => {
+      const text = el.textContent.trim();
+      const num  = parseInt(text.replace(/\D/g, ''));
+      if (isNaN(num)) return;
+      const suffix = text.replace(/[\d]/g, '');
+      el.textContent = suffix.startsWith('+') ? '+0' : '0' + suffix.replace('+','');
+
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          gsap.to({ val: 0 }, {
+            val: num, duration: 2, ease: 'power2.out',
+            onUpdate: function() {
+              el.textContent = (suffix.startsWith('+') ? '+' : '') + Math.round(this.targets()[0].val) + suffix.replace(/^\+/, '').replace(/\d/g, '');
+            }
+          });
+        }
+      });
+    });
+
+    // =============================================
+    // MARQUEE GSAP (infinite)
+    // =============================================
+    const track = document.getElementById('marqueeTrack');
+    if (track) {
+      const trackWidth = track.scrollWidth / 2;
+      gsap.to(track, {
+        x: -trackWidth,
+        duration: 30,
+        ease: 'none',
+        repeat: -1,
+        modifiers: {
+          x: gsap.utils.unitize(x => parseFloat(x) % trackWidth)
+        }
+      });
+    }
+
+    // =============================================
+    // SCROLL REVEAL — GSAP ScrollTrigger
+    // =============================================
+    // Section headers
+    gsap.utils.toArray('.section-header').forEach(header => {
+      const tag   = header.querySelector('.tag');
+      const title = header.querySelector('.section-title');
+      const sub   = header.querySelector('.section-sub');
+
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: header, start: 'top 80%', once: true }
+      });
+      if (tag)   tl.from(tag,   { y: 20, opacity: 0, duration: 0.6 });
+      if (title) tl.from(title, { y: 40, opacity: 0, duration: 0.8, ease: 'expo.out' }, '-=0.3');
+      if (sub)   tl.from(sub,   { y: 20, opacity: 0, duration: 0.6 }, '-=0.4');
+    });
+
+    // Problem cards — stagger + 3D tilt entry
+    gsap.utils.toArray('.problem-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 85%', once: true },
+        y: 60, opacity: 0, rotateX: 15,
+        duration: 0.8, delay: i * 0.1, ease: 'expo.out'
+      });
+
+      // Tilt on hover
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width  - 0.5;
+        const y = (e.clientY - rect.top)  / rect.height - 0.5;
+        gsap.to(card, { rotateY: x * 10, rotateX: -y * 10, duration: 0.4, ease: 'power2.out', transformPerspective: 800 });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1, 0.6)' });
+      });
+    });
+
+    // Solution cards
+    gsap.utils.toArray('.solution-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 85%', once: true },
+        y: 70, opacity: 0, scale: 0.95,
+        duration: 0.9, delay: (i % 3) * 0.12, ease: 'expo.out'
+      });
+
+      // Shine sweep on hover
+      const shine = document.createElement('div');
+      shine.className = 'card-shine';
+      card.style.overflow = 'hidden';
+      card.appendChild(shine);
+
+      card.addEventListener('mouseenter', () => {
+        gsap.fromTo(shine, { left: '-100%' }, { left: '150%', duration: 0.6, ease: 'power2.inOut' });
+      });
+    });
+
+    // Pricing cards — dramatic entrance
+    gsap.utils.toArray('.pricing-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 80%', once: true },
+        y: 80, opacity: 0, scale: 0.93,
+        duration: 1, delay: i * 0.15, ease: 'expo.out'
+      });
+
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width  - 0.5;
+        const y = (e.clientY - rect.top)  / rect.height - 0.5;
+        gsap.to(card, { rotateY: x * 8, rotateX: -y * 8, duration: 0.5, ease: 'power2.out', transformPerspective: 1000 });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.8, ease: 'elastic.out(1, 0.5)' });
+      });
+    });
+
+    // Process steps — cascade with connecting line draw
+    const processLine = document.querySelector('.process-steps::before');
+    gsap.utils.toArray('.process-step').forEach((step, i) => {
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: step, start: 'top 85%', once: true }
+      });
+      tl.from(step.querySelector('.step-number'), {
+        scale: 0, opacity: 0, duration: 0.6, delay: i * 0.15, ease: 'back.out(1.7)'
+      })
+      .from(step.querySelector('.step-icon'), {
+        y: 20, opacity: 0, duration: 0.4
+      }, '-=0.2')
+      .from([step.querySelector('.step-title'), step.querySelector('.step-desc')], {
+        y: 20, opacity: 0, stagger: 0.1, duration: 0.5
+      }, '-=0.2');
+    });
+
+    // Demo cards
+    gsap.utils.toArray('.demo-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 85%', once: true },
+        x: i % 2 === 0 ? -40 : 40, opacity: 0,
+        duration: 0.9, delay: i * 0.1, ease: 'expo.out'
+      });
+    });
+
+    // Testimonials
+    gsap.utils.toArray('.testimonial-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 85%', once: true },
+        y: 50, opacity: 0,
+        duration: 0.8, delay: i * 0.12, ease: 'expo.out'
+      });
+    });
+
+    // CTA section — big cinematic reveal
+    const ctaTl = gsap.timeline({
+      scrollTrigger: { trigger: '#cta', start: 'top 70%', once: true }
+    });
+    ctaTl
+      .from('#cta .tag', { y: 20, opacity: 0, duration: 0.5 })
+      .from('#cta .cta-title', { y: 60, opacity: 0, duration: 1, ease: 'expo.out' }, '-=0.3')
+      .from('#cta .cta-sub', { y: 30, opacity: 0, duration: 0.7 }, '-=0.5')
+      .from('#cta .cta-buttons > *', { y: 20, opacity: 0, stagger: 0.15, duration: 0.6 }, '-=0.4')
+      .from('#cta p:last-child', { opacity: 0, duration: 0.5 }, '-=0.2');
+
+    // CTA glow pulse on the background
+    gsap.to('.cta-bg', {
+      scrollTrigger: { trigger: '#cta', start: 'top center', once: true },
+      scale: 1.4, opacity: 1, duration: 2, ease: 'power2.out'
+    });
+
+    // Footer
+    gsap.from('.footer-inner > *', {
+      scrollTrigger: { trigger: 'footer', start: 'top 85%', once: true },
+      y: 40, opacity: 0, stagger: 0.1, duration: 0.7, ease: 'expo.out'
+    });
+
+    // =============================================
+    // MAGNETIC BUTTONS
+    // =============================================
+    document.querySelectorAll('.btn-primary, .btn-whatsapp, .btn-nav').forEach(btn => {
+      btn.addEventListener('mousemove', e => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top  - rect.height / 2;
+        gsap.to(btn, { x: x * 0.25, y: y * 0.25, duration: 0.4, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.5)' });
+      });
+    });
+
+    // =============================================
+    // SECTION NUMBER PARALLAX
+    // =============================================
+    document.querySelectorAll('section[id]').forEach((section, i) => {
+      const nums = ['01','02','03','04','05','06','07'];
+      const num = document.createElement('div');
+      num.className = 'section-number';
+      num.textContent = nums[i] || '0' + (i+1);
+      section.style.position = 'relative';
+      section.appendChild(num);
+
+      gsap.to(num, {
+        y: -60,
+        scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: 1 }
+      });
+    });
+
+    // =============================================
+    // HERO SCROLL PARALLAX
+    // =============================================
+    gsap.to('.hero-left', {
+      y: -80,
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 0.8 }
+    });
+    gsap.to('.hero-right', {
+      y: -50,
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 0.5 }
+    });
+    gsap.to('.hero-grid', {
+      y: -30,
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 0.3 }
+    });
+
+    // =============================================
+    // SOLUTION SECTION — pinned horizontal feeling
+    // =============================================
+    gsap.from('#solucion .section-title', {
+      scrollTrigger: { trigger: '#solucion', start: 'top 75%', once: true },
+      backgroundPositionX: '200%',
+      duration: 1.5, ease: 'expo.out'
+    });
+
+    // =============================================
+    // DEMOS SLIDER (GSAP-powered)
+    // =============================================
+    const demosSlider = document.getElementById('demosSlider');
+    const demoPrev    = document.getElementById('demoPrev');
+    const demoNext    = document.getElementById('demoNext');
+    const demoDots    = document.querySelectorAll('.slider-dot[data-index]');
+
+    let demoIndex = 0, demoAutoInterval;
+
+    function getCardWidth() {
+      const card  = demosSlider.children[0];
+      const gap   = 24;
+      return card.offsetWidth + gap;
+    }
+
+    function getMaxDemoIndex() {
+      const vis = window.innerWidth > 1024 ? 3 : window.innerWidth > 768 ? 2 : 1;
+      return demosSlider.children.length - vis;
+    }
+
+    function updateDemosSlider(animated = true) {
+      const x = -demoIndex * getCardWidth();
+      if (animated) gsap.to(demosSlider, { x, duration: 0.7, ease: 'expo.out' });
+      else gsap.set(demosSlider, { x });
+      demoDots.forEach((d, i) => d.classList.toggle('active', i === demoIndex % demoDots.length));
+    }
+
+    function nextDemo() {
+      demoIndex = demoIndex >= getMaxDemoIndex() ? 0 : demoIndex + 1;
+      updateDemosSlider();
+    }
+    function prevDemo() {
+      demoIndex = demoIndex <= 0 ? getMaxDemoIndex() : demoIndex - 1;
+      updateDemosSlider();
+    }
+
+    demoNext.addEventListener('click', () => { nextDemo(); resetDemoAuto(); });
+    demoPrev.addEventListener('click', () => { prevDemo(); resetDemoAuto(); });
+    demoDots.forEach(d => d.addEventListener('click', () => {
+      demoIndex = parseInt(d.dataset.index);
+      updateDemosSlider();
+      resetDemoAuto();
+    }));
+
+    function startDemoAuto() { demoAutoInterval = setInterval(nextDemo, 3500); }
+    function resetDemoAuto() { clearInterval(demoAutoInterval); startDemoAuto(); }
+    startDemoAuto();
+    window.addEventListener('resize', () => updateDemosSlider(false));
+
+    // =============================================
+    // TESTIMONIALS SLIDER (GSAP-powered)
+    // =============================================
+    const testTrack = document.getElementById('testimonialsTrack');
+    const testPrev  = document.getElementById('testPrev');
+    const testNext  = document.getElementById('testNext');
+    const testDots  = document.querySelectorAll('.slider-dot[data-slider="test"]');
+    let testIndex = 0;
+
+    function getTestWidth() {
+      return testTrack.children[0].offsetWidth + 24;
+    }
+    function getMaxTest() {
+      const vis = window.innerWidth > 1024 ? 3 : window.innerWidth > 768 ? 2 : 1;
+      return testTrack.children.length - vis;
+    }
+    function updateTest() {
+      gsap.to(testTrack, { x: -testIndex * getTestWidth(), duration: 0.7, ease: 'expo.out' });
+      testDots.forEach((d, i) => d.classList.toggle('active', i === testIndex % testDots.length));
+    }
+
+    testNext.addEventListener('click', () => {
+      testIndex = testIndex >= getMaxTest() ? 0 : testIndex + 1; updateTest();
+    });
+    testPrev.addEventListener('click', () => {
+      testIndex = testIndex <= 0 ? getMaxTest() : testIndex - 1; updateTest();
+    });
+    testDots.forEach(d => d.addEventListener('click', () => {
+      testIndex = parseInt(d.dataset.index); updateTest();
+    }));
+    setInterval(() => { testIndex = testIndex >= getMaxTest() ? 0 : testIndex + 1; updateTest(); }, 5000);
+    window.addEventListener('resize', () => gsap.set(testTrack, { x: -testIndex * getTestWidth() }));
+
+    // =============================================
+    // BROWSER MOCKUP URL SWITCHER
+    // =============================================
+    const browserUrl = document.getElementById('browserUrl');
+    if (browserUrl) {
+      const urls = ['barberia-elite.com','clinica-dentalplus.com','powergym.com','lafogata-restaurante.com'];
+      let urlIndex = 0;
+      setInterval(() => {
+        urlIndex = (urlIndex + 1) % urls.length;
+        gsap.to(browserUrl, {
+          opacity: 0, y: -4, duration: 0.25,
+          onComplete: () => {
+            browserUrl.textContent = urls[urlIndex];
+            gsap.to(browserUrl, { opacity: 1, y: 0, duration: 0.3 });
+          }
+        });
+      }, 3000);
+    }
+
+    // =============================================
+    // MOBILE MENU
+    // =============================================
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileClose = document.getElementById('mobileClose');
+
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.add('open');
+      gsap.from('.mobile-menu a', { x: -30, opacity: 0, stagger: 0.07, duration: 0.5, ease: 'expo.out' });
+    });
+    mobileClose.addEventListener('click', () => mobileMenu.classList.remove('open'));
+
+    // =============================================
+    // SMOOTH ANCHOR SCROLL
+    // =============================================
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          gsap.to(window, { scrollTo: { y: target, offsetY: 80 }, duration: 1, ease: 'expo.inOut' });
+        }
+      });
+    });
+
+    // =============================================
+    // PRICING CARD FEATURED GLOW PULSE
+    // =============================================
+    gsap.to('.pricing-card.featured', {
+      boxShadow: '0 0 0 1px rgba(212,168,67,0.35), 0 0 120px rgba(212,168,67,0.2), 0 40px 80px rgba(0,0,0,0.5)',
+      repeat: -1, yoyo: true, duration: 2.5, ease: 'sine.inOut'
+    });
+
+    // =============================================
+    // HERO BEAM EFFECT
+    // =============================================
+    const beam = document.createElement('div');
+    beam.className = 'hero-beam';
+    beam.style.left = '50%';
+    document.getElementById('hero').appendChild(beam);
+    gsap.timeline({ repeat: -1, repeatDelay: 4 })
+      .to(beam, { opacity: 0.7, duration: 0.3 })
+      .to(beam, { opacity: 0, duration: 1.5, delay: 0.5 });
+
+    // =============================================
+    // SECTION BG COLOR TRANSITIONS on scroll
+    // =============================================
+    ScrollTrigger.create({
+      trigger: '#cta',
+      start: 'top center',
+      end: 'bottom center',
+      onEnter: () => gsap.to('body', { '--black': '#0d0d0a', duration: 1 }),
+      onLeaveBack: () => gsap.to('body', { '--black': '#080810', duration: 1 })
+    });
+
+    // ScrollTrigger refresh after fonts/images load
+    ScrollTrigger.refresh();
+
+  }); // end load
+
+  // =============================================
+  // closeMobileMenu (needs to be global)
+  // =============================================
+  function closeMobileMenu() {
+    document.getElementById('mobileMenu').classList.remove('open');
+  }
+  </script>
+</body>
+</html>
