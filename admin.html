@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ian Dev — Panel de Administración</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --black: #080810;
+      --bg: #0b0b15;
+      --surface: #0f0f1e;
+      --surface-2: #14142a;
+      --surface-3: #1c1c35;
+      --border: rgba(255,255,255,0.07);
+      --border-gold: rgba(212,168,67,0.3);
+      --gold: #d4a843;
+      --gold-light: #f0c96a;
+      --gold-dark: #a07a20;
+      --white: #ffffff;
+      --gray-100: #f0f0f8;
+      --gray-200: #d0d0e0;
+      --gray-400: #8888a8;
+      --gray-600: #444460;
+      --green: #4ade80;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --font: 'Plus Jakarta Sans', sans-serif;
+      --sidebar-w: 260px;
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--white); min-height: 100vh; overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; font-family: var(--font); }
+    input, textarea, select { font-family: var(--font); }
+
+    /* ── LOGIN ── */
+    #loginScreen {
+      position: fixed; inset: 0;
+      background: var(--black);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      background-image: radial-gradient(ellipse 60% 60% at 50% 40%, rgba(212,168,67,0.07) 0%, transparent 70%);
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-logo .logo-name {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .login-logo span { color: var(--gold); }
+
+    .login-logo .logo-sub {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-top: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .login-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .login-sub {
+      font-size: 14px;
+      color: var(--gray-400);
+      margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 15px;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--border-gold);
+      box-shadow: 0 0 0 3px rgba(212,168,67,0.08);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+      color: var(--black);
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 8px;
+      transition: all 0.3s;
+      box-shadow: 0 0 30px rgba(212,168,67,0.3);
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 40px rgba(212,168,67,0.5);
+    }
+
+    .login-error {
+      color: var(--red);
+      font-size: 13px;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    /* ── ADMIN SHELL ── */
+    #adminShell { display: none; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-logo-name {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .sidebar-logo-name span { color: var(--gold); }
+
+    .sidebar-logo-badge {
+      font-size: 9px;
+      font-weight: 700;
+      background: rgba(212,168,67,0.15);
+      color: var(--gold);
+      padding: 2px 7px;
+      border-radius: 100px;
+      border: 1px solid var(--border-gold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+    }
+
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      padding: 12px 8px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-400);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 2px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+    }
+
+    .nav-item.active {
+      background: rgba(212,168,67,0.1);
+      color: var(--gold);
+      border: 1px solid rgba(212,168,67,0.15);
+    }
+
+    .nav-item .ni-icon { font-size: 16px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface-2);
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .user-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: var(--black);
+      flex-shrink: 0;
+    }
+
+    .user-name { font-size: 12px; font-weight: 600; }
+    .user-role { font-size: 11px; color: var(--gold); }
+
+    .btn-logout {
+      width: 100%;
+      padding: 9px;
+      border-radius: 8px;
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.15);
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover { background: rgba(248,113,113,0.15); }
+
+    /* Main content area */
+    .main {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      background: rgba(11,11,21,0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 50;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .topbar-sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn-preview {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-preview:hover { background: rgba(255,255,255,0.1); }
+
+    .btn-save {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.3s;
+    }
+
+    .btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(212,168,67,0.4); }
+
+    /* Content */
+    .content { flex: 1; padding: 32px 28px; }
+
+    /* ── PANELS ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Dashboard cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .stat-card-label { font-size: 12px; color: var(--gray-400); margin-bottom: 8px; font-weight: 500; }
+    .stat-card-value { font-size: 28px; font-weight: 800; }
+    .stat-card-change { font-size: 12px; margin-top: 4px; }
+    .stat-card-change.up { color: var(--green); }
+    .stat-card-change.neutral { color: var(--gray-400); }
+
+    /* Section panels */
+    .panel-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .panel-section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-section-sub {
+      font-size: 13px;
+      color: var(--gray-400);
+      margin-bottom: 24px;
+    }
+
+    /* Form fields */
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .field-row.full { grid-template-columns: 1fr; }
+    .field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+    .field { margin-bottom: 16px; }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-400);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field-input:focus { border-color: var(--border-gold); }
+
+    .field-textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.6;
+    }
+
+    /* Color picker */
+    .color-field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-preview {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .color-preview input[type="color"] {
+      width: 200%;
+      height: 200%;
+      margin: -25%;
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+
+    /* Font selector */
+    .font-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .font-option {
+      background: var(--surface-2);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .font-option:hover { border-color: rgba(212,168,67,0.3); }
+    .font-option.selected { border-color: var(--gold); background: rgba(212,168,67,0.05); }
+
+    .font-option-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .font-option-preview { font-size: 18px; color: var(--gray-400); }
+
+    /* Image upload */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--border-gold);
+      background: rgba(212,168,67,0.03);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .upload-icon { font-size: 36px; margin-bottom: 10px; }
+    .upload-text { font-size: 14px; color: var(--gray-400); }
+    .upload-text strong { color: var(--gold); }
+    .upload-hint { font-size: 12px; color: var(--gray-600); margin-top: 4px; }
+
+    .uploaded-preview {
+      width: 100%;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* Demo cards in admin */
+    .demo-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .demo-admin-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .demo-admin-thumb {
+      width: 56px; height: 56px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .demo-admin-info { flex: 1; }
+    .demo-admin-name { font-size: 15px; font-weight: 700; }
+    .demo-admin-type { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+    .demo-admin-url { font-size: 12px; color: var(--blue); margin-top: 4px; }
+
+    .demo-admin-actions { display: flex; gap: 8px; }
+
+    .btn-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      background: var(--surface-3);
+    }
+
+    .btn-icon:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+    .btn-icon.danger:hover { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.1); color: var(--red); }
+    .btn-icon.success { border-color: rgba(212,168,67,0.3); color: var(--gold); }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toggle-row:last-child { border-bottom: none; }
+
+    .toggle-label { font-size: 14px; font-weight: 500; }
+    .toggle-desc { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+
+    .toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      left: 3px; top: 3px;
+      background: var(--gray-600);
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle input:checked + .toggle-slider { background: rgba(212,168,67,0.2); border-color: var(--border-gold); }
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+      background: var(--gold);
+    }
+
+    /* Add demo modal */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+    }
+
+    .modal-title {
+      font-size: 18px; font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .modal-sub { font-size: 13px; color: var(--gray-400); margin-bottom: 24px; }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-cancel {
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--gray-400);
+      font-size: 14px; font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:hover { color: var(--white); }
+
+    .btn-confirm {
+      padding: 10px 22px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: var(--black);
+      font-size: 14px; font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(212,168,67,0.4); }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--surface-3);
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 9000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-icon { font-size: 18px; }
+
+    /* Color palette grid */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .palette-item { }
+
+    .palette-swatch {
+      width: 100%;
+      height: 48px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .palette-swatch:hover { transform: scale(1.04); }
+
+    .palette-swatch input[type="color"] {
+      position: absolute; inset: -10px;
+      width: calc(100% + 20px);
+      height: calc(100% + 20px);
+      cursor: pointer;
+      opacity: 0;
+    }
+
+    .palette-name { font-size: 11px; color: var(--gray-400); text-align: center; }
+
+    /* Pricing admin */
+    .pricing-admin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .pricing-admin-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .pricing-admin-card.featured-admin {
+      border-color: var(--border-gold);
+    }
+
+    .pac-plan { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+
+    /* Section visibility */
+    .section-visibility-list { display: flex; flex-direction: column; gap: 2px; }
+
+    /* Live preview hint */
+    .preview-hint {
+      background: rgba(212,168,67,0.05);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--gray-400);
+      margin-bottom: 24px;
+    }
+
+    /* Responsive admin */
+    .hamburger-admin {
+      display: none;
+      background: none;
+      border: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+    }
+
+    .hamburger-admin span { width: 22px; height: 2px; background: var(--white); border-radius: 2px; }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .pricing-admin-grid { grid-template-columns: 1fr; }
+      .field-row { grid-template-columns: 1fr; }
+      .field-row.three { grid-template-columns: 1fr; }
+      .font-grid { grid-template-columns: repeat(2, 1fr); }
+      .hamburger-admin { display: flex; }
+      .topbar { padding: 14px 16px; }
+      .content { padding: 20px 16px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stat-card-value { font-size: 22px; }
+      .login-card { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN SCREEN ══════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-name">Ian<span>Dev</span></div>
+      <div class="logo-sub">Panel de Administración</div>
+    </div>
+    <div class="login-title">Bienvenido de vuelta</div>
+    <p class="login-sub">Ingresa tus credenciales para acceder al panel completo.</p>
+
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <input class="form-input" type="email" id="loginEmail" placeholder="tu@correo.com" autocomplete="username" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input class="form-input" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="btn-login" id="loginBtn">Ingresar al panel →</button>
+    <div class="login-error" id="loginError">❌ Credenciales incorrectas. Intenta de nuevo.</div>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN SHELL ══════════════ -->
+<div id="adminShell">
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div>
+        <div class="sidebar-logo-name">Ian<span>Dev</span></div>
+      </div>
+      <span class="sidebar-logo-badge">Admin</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">General</div>
+      <button class="nav-item active" data-panel="dashboard" onclick="showPanel(this)">
+        <span class="ni-icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" data-panel="identidad" onclick="showPanel(this)">
+        <span class="ni-icon">✨</span> Identidad & Logo
+      </button>
+      <button class="nav-item" data-panel="colores" onclick="showPanel(this)">
+        <span class="ni-icon">🎨</span> Colores & Tipografía
+      </button>
+
+      <div class="nav-section-label" style="margin-top:8px;">Contenido</div>
+      <button class="nav-item" data-panel="hero" onclick="showPanel(this)">
+        <span class="ni-icon">🚀</span> Hero Section
+      </button>
+      <button class="nav-item" data-panel="demos" onclick="showPanel(this)">
+        <span class="ni-icon">🖥️</span> Demos & Portafolio
+      </button>
+      <button class="nav-item" data-panel="precios" onclick="showPanel(this)">
+        <span class="ni-icon">💰</span> Precios
+      </button>
+      <button class="nav-item" data-panel="testimonios" onclick="showPanel(this)">
+        <span class="ni-icon">💬</span> Testimonios
+      </button>
+      <button class="nav-item" data-panel="contacto" onclick="showPanel(this)">
+        <span class="ni-icon">📱</span> Contacto & Redes
+      </button>
+
+      <div class="nav-section-label" style="margin-top:8px;">Avanzado</div>
+      <button class="nav-item" data-panel="secciones" onclick="showPanel(this)">
+        <span class="ni-icon">👁️</span> Visibilidad
+      </button>
+      <button class="nav-item" data-panel="seo" onclick="showPanel(this)">
+        <span class="ni-icon">🔍</span> SEO & Meta
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">I</div>
+        <div>
+          <div class="user-name">Ian Núñez</div>
+          <div class="user-role">Super Admin</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <!-- Main area -->
+  <div class="main">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger-admin" id="hamburgerAdmin" onclick="toggleSidebar()">
+          <span></span><span></span><span></span>
+        </button>
+        <div>
+          <div class="topbar-title" id="topbarTitle">Dashboard</div>
+          <div class="topbar-sub">Ian Dev — Panel de administración</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-preview" onclick="window.open('index.html','_blank')">👁️ Ver página</button>
+        <button class="btn-save" onclick="saveAll()">💾 Guardar cambios</button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-label">Demos publicados</div>
+            <div class="stat-card-value" id="stat-demos">4</div>
+            <div class="stat-card-change up">↑ Activos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Testimonios</div>
+            <div class="stat-card-value" id="stat-testimonios">4</div>
+            <div class="stat-card-change up">↑ Publicados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Planes de precio</div>
+            <div class="stat-card-value">3</div>
+            <div class="stat-card-change neutral">— Sin cambios</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Secciones visibles</div>
+            <div class="stat-card-value" id="stat-secciones">9</div>
+            <div class="stat-card-change up">↑ Todas activas</div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">👋 Bienvenido al panel de Ian Dev</div>
+          <p class="panel-section-sub">Desde aquí puedes controlar todo el contenido y diseño de tu landing page sin tocar ningún código.</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <button class="btn-preview" onclick="showPanelById('identidad')" style="flex-direction:column;padding:20px;gap:6px;text-align:center;">
+              <span style="font-size:24px;">✨</span>
+              <span style="font-size:13px;font-weight:600;">Identidad</span>
+              <span style="font-size:11px;color:var(--gray-400);">Logo y nombre</span>
+            </button>
+            <button class="btn-preview" onclick="showPanelById('demos')" style="flex-direction:column;padding:20px;gap:6px;text-align:center;">
+              <span style="font-size:24px;">🖥️</span>
+              <span style="font-size:13px;font-weight:600;">Demos</span>
+              <span style="font-size:11px;color:var(--gray-400);">Agregar / editar</span>
+            </button>
+            <button class="btn-preview" onclick="showPanelById('colores')" style="flex-direction:column;padding:20px;gap:6px;text-align:center;">
+              <span style="font-size:24px;">🎨</span>
+              <span style="font-size:13px;font-weight:600;">Diseño</span>
+              <span style="font-size:11px;color:var(--gray-400);">Colores y fuentes</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── IDENTIDAD ── -->
+      <div class="panel" id="panel-identidad">
+        <div class="preview-hint">💡 Los cambios se aplican en tiempo real. Haz clic en "Guardar cambios" para que sean permanentes.</div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">🏷️ Nombre de la agencia</div>
+          <p class="panel-section-sub">El nombre que aparece en el logo y a lo largo de la página.</p>
+          <div class="field-row">
+            <div>
+              <label class="field-label">Primera parte del nombre</label>
+              <input class="field-input" id="brandPart1" value="Ian" placeholder="Ian" />
+            </div>
+            <div>
+              <label class="field-label">Segunda parte (dorada)</label>
+              <input class="field-input" id="brandPart2" value="Dev" placeholder="Dev" />
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Tagline del título</label>
+            <input class="field-input" id="brandTagline" value="Páginas Web para Negocios Locales" />
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">🖼️ Logo</div>
+          <p class="panel-section-sub">Sube un logo personalizado (PNG con fondo transparente recomendado). Si no subes logo, se usa el nombre de texto.</p>
+          <div class="upload-zone" id="logoUploadZone">
+            <input type="file" accept="image/*" id="logoFile" onchange="handleLogoUpload(this)" />
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-text">Arrastra tu logo aquí o <strong>haz clic para subir</strong></div>
+            <div class="upload-hint">PNG, SVG recomendado · Máx 2MB</div>
+            <img id="logoPreviewImg" class="uploaded-preview" />
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">📊 Estadísticas del Hero</div>
+          <p class="panel-section-sub">Los 3 números que aparecen bajo los botones del hero.</p>
+          <div class="field-row three">
+            <div>
+              <label class="field-label">Stat 1 — Número</label>
+              <input class="field-input" id="stat1val" value="50+" />
+            </div>
+            <div>
+              <label class="field-label">Stat 2 — Número</label>
+              <input class="field-input" id="stat2val" value="7 días" />
+            </div>
+            <div>
+              <label class="field-label">Stat 3 — Número</label>
+              <input class="field-input" id="stat3val" value="100%" />
+            </div>
+          </div>
+          <div class="field-row three">
+            <div>
+              <label class="field-label">Stat 1 — Etiqueta</label>
+              <input class="field-input" id="stat1label" value="Negocios con página web" />
+            </div>
+            <div>
+              <label class="field-label">Stat 2 — Etiqueta</label>
+              <input class="field-input" id="stat2label" value="Tiempo de entrega" />
+            </div>
+            <div>
+              <label class="field-label">Stat 3 — Etiqueta</label>
+              <input class="field-input" id="stat3label" value="Clientes satisfechos" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── COLORES & TIPOGRAFÍA ── -->
+      <div class="panel" id="panel-colores">
+        <div class="panel-section">
+          <div class="panel-section-title">🎨 Paleta de colores</div>
+          <p class="panel-section-sub">Haz clic en cualquier color para cambiarlo.</p>
+          <div class="palette-grid" id="paletteGrid">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">🔤 Tipografía</div>
+          <p class="panel-section-sub">Selecciona la combinación de fuentes que mejor represente tu marca.</p>
+          <div class="font-grid" id="fontGrid">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">✴️ Presets de estilo</div>
+          <p class="panel-section-sub">Aplica un preset visual completo con un clic.</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <button class="font-option" onclick="applyPreset('dark-gold')">
+              <div class="font-option-preview">🖤✨</div>
+              <div class="font-option-name" style="margin-top:8px;">Dark Gold</div>
+              <div style="font-size:11px;color:var(--gray-400);">Actual</div>
+            </button>
+            <button class="font-option" onclick="applyPreset('midnight-blue')">
+              <div class="font-option-preview">🌊💙</div>
+              <div class="font-option-name" style="margin-top:8px;">Midnight Blue</div>
+              <div style="font-size:11px;color:var(--gray-400);">Azul premium</div>
+            </button>
+            <button class="font-option" onclick="applyPreset('emerald')">
+              <div class="font-option-preview">💚🌿</div>
+              <div class="font-option-name" style="margin-top:8px;">Emerald</div>
+              <div style="font-size:11px;color:var(--gray-400);">Verde elegante</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HERO SECTION ── -->
+      <div class="panel" id="panel-hero">
+        <div class="panel-section">
+          <div class="panel-section-title">🚀 Título principal</div>
+          <p class="panel-section-sub">El título grande del hero. La línea en dorado es la que rota automáticamente.</p>
+          <div class="field">
+            <label class="field-label">Línea 1 del título</label>
+            <input class="field-input" id="heroTitle1" value="Consigue más clientes con una" />
+          </div>
+          <div class="field">
+            <label class="field-label">Frases rotativas (separadas por |)</label>
+            <input class="field-input" id="heroRotatingPhrases" value="página web profesional|sistema de reservas|presencia digital|más clientes hoy" />
+          </div>
+          <div class="field">
+            <label class="field-label">Subtítulo</label>
+            <textarea class="field-input field-textarea" id="heroSubtitle">Desarrollamos páginas web modernas con sistema de reservas y panel de administración para negocios locales. Listos en 7 días.</textarea>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">🔘 Botones del Hero</div>
+          <div class="field-row">
+            <div>
+              <label class="field-label">Botón primario — Texto</label>
+              <input class="field-input" id="heroBtnPrimary" value="Ver demostraciones" />
+            </div>
+            <div>
+              <label class="field-label">Botón primario — Enlace</label>
+              <input class="field-input" id="heroBtnPrimaryUrl" value="#demos" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div>
+              <label class="field-label">Botón secundario — Texto</label>
+              <input class="field-input" id="heroBtnSecondary" value="WhatsApp" />
+            </div>
+            <div>
+              <label class="field-label">Número WhatsApp</label>
+              <input class="field-input" id="whatsappNum" value="+52 5549027490" />
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">🏷️ Badge animado</div>
+          <div class="field-row">
+            <div>
+              <label class="field-label">Texto del badge (dorado)</label>
+              <input class="field-input" id="heroBadgeDot" value="NUEVO" />
+            </div>
+            <div>
+              <label class="field-label">Texto del badge (gris)</label>
+              <input class="field-input" id="heroBadgeText" value="Diseño web para negocios locales" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DEMOS ── -->
+      <div class="panel" id="panel-demos">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div>
+            <div style="font-size:18px;font-weight:800;">🖥️ Demos & Portafolio</div>
+            <div style="font-size:13px;color:var(--gray-400);margin-top:2px;">Administra los demos que se muestran en el slider.</div>
+          </div>
+          <button class="btn-save" onclick="openAddDemoModal()">+ Agregar demo</button>
+        </div>
+
+        <div class="panel-section">
+          <div class="demo-list" id="demoList">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PRECIOS ── -->
+      <div class="panel" id="panel-precios">
+        <div class="panel-section">
+          <div class="panel-section-title">💰 Planes de precios</div>
+          <p class="panel-section-sub">Edita los nombres, precios y características de cada plan.</p>
+          <div class="pricing-admin-grid" id="pricingGrid">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TESTIMONIOS ── -->
+      <div class="panel" id="panel-testimonios">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div>
+            <div style="font-size:18px;font-weight:800;">💬 Testimonios</div>
+            <div style="font-size:13px;color:var(--gray-400);margin-top:2px;">Agrega, edita o elimina testimonios.</div>
+          </div>
+          <button class="btn-save" onclick="openAddTestimonial()">+ Agregar</button>
+        </div>
+
+        <div class="panel-section">
+          <div id="testimonialList" style="display:flex;flex-direction:column;gap:16px;">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CONTACTO ── -->
+      <div class="panel" id="panel-contacto">
+        <div class="panel-section">
+          <div class="panel-section-title">📱 WhatsApp & Contacto</div>
+          <p class="panel-section-sub">Número al que se enviará cuando alguien haga clic en los botones de WhatsApp.</p>
+          <div class="field-row">
+            <div>
+              <label class="field-label">Número WhatsApp (con código de país)</label>
+              <input class="field-input" id="ctaWhatsapp" value="+52 5549027490" />
+            </div>
+            <div>
+              <label class="field-label">Correo de contacto</label>
+              <input class="field-input" id="ctaEmail" value="Ian.nunez206@gmail.com" />
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Mensaje predeterminado WhatsApp</label>
+            <input class="field-input" id="ctaWaMessage" value="Hola, me interesa una página web para mi negocio" />
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">🔗 Redes sociales</div>
+          <div class="field-row">
+            <div>
+              <label class="field-label">Instagram</label>
+              <input class="field-input" id="socialIG" value="https://instagram.com/iandev" placeholder="https://instagram.com/..." />
+            </div>
+            <div>
+              <label class="field-label">Facebook</label>
+              <input class="field-input" id="socialFB" value="https://facebook.com/iandev" placeholder="https://facebook.com/..." />
+            </div>
+          </div>
+          <div class="field-row">
+            <div>
+              <label class="field-label">TikTok</label>
+              <input class="field-input" id="socialTK" value="" placeholder="https://tiktok.com/@..." />
+            </div>
+            <div>
+              <label class="field-label">LinkedIn</label>
+              <input class="field-input" id="socialLI" value="" placeholder="https://linkedin.com/in/..." />
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">📍 Información de footer</div>
+          <div class="field-row">
+            <div>
+              <label class="field-label">Texto copyright</label>
+              <input class="field-input" id="footerCopy" value="© 2025 Ian Dev. Todos los derechos reservados." />
+            </div>
+            <div>
+              <label class="field-label">Ciudad / Ubicación</label>
+              <input class="field-input" id="footerCity" value="México" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VISIBILIDAD ── -->
+      <div class="panel" id="panel-secciones">
+        <div class="panel-section">
+          <div class="panel-section-title">👁️ Visibilidad de secciones</div>
+          <p class="panel-section-sub">Muestra u oculta secciones de tu landing page con un clic.</p>
+          <div class="section-visibility-list" id="visibilityList">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SEO ── -->
+      <div class="panel" id="panel-seo">
+        <div class="panel-section">
+          <div class="panel-section-title">🔍 SEO & Metadatos</div>
+          <p class="panel-section-sub">Optimiza tu página para buscadores como Google.</p>
+          <div class="field">
+            <label class="field-label">Título de la página (title tag)</label>
+            <input class="field-input" id="seoTitle" value="Ian Dev — Páginas Web para Negocios Locales" />
+            <div style="font-size:11px;color:var(--gray-400);margin-top:4px;">Máximo 60 caracteres recomendado.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Meta descripción</label>
+            <textarea class="field-input field-textarea" id="seoDesc" style="min-height:80px;">Desarrollamos páginas web modernas con sistema de reservas para negocios locales. Barberías, dentistas, gimnasios, restaurantes y más.</textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">Palabras clave (separadas por comas)</label>
+            <input class="field-input" id="seoKeywords" value="páginas web negocios locales, diseño web, reservas online, barbería web, dentista web" />
+          </div>
+          <div class="field-row">
+            <div>
+              <label class="field-label">Ciudad / Región</label>
+              <input class="field-input" id="seoCity" value="Ciudad de México, México" />
+            </div>
+            <div>
+              <label class="field-label">Google Analytics ID</label>
+              <input class="field-input" id="seoGA" placeholder="G-XXXXXXXXXX" />
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-title">📤 Open Graph (Redes sociales)</div>
+          <p class="panel-section-sub">La vista previa que aparece cuando compartes el link en WhatsApp, Facebook, etc.</p>
+          <div class="field">
+            <label class="field-label">Título OG</label>
+            <input class="field-input" id="ogTitle" value="Ian Dev — Tu página web profesional en 7 días" />
+          </div>
+          <div class="field">
+            <label class="field-label">Descripción OG</label>
+            <input class="field-input" id="ogDesc" value="Páginas web modernas con reservas online para negocios locales." />
+          </div>
+          <div class="field">
+            <label class="field-label">Imagen OG (URL)</label>
+            <input class="field-input" id="ogImage" placeholder="https://tudominio.com/og-image.jpg" />
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /adminShell -->
+
+<!-- ══ ADD DEMO MODAL ══ -->
+<div class="modal-overlay" id="addDemoModal">
+  <div class="modal">
+    <div class="modal-title">✨ Agregar / Editar Demo</div>
+    <p class="modal-sub">Completa los datos del negocio que quieres mostrar en el slider.</p>
+    <input type="hidden" id="editDemoIndex" value="-1" />
+
+    <div class="field">
+      <label class="field-label">Nombre del negocio</label>
+      <input class="field-input" id="demoName" placeholder="ej. BarberElite" />
+    </div>
+    <div class="field-row">
+      <div>
+        <label class="field-label">Tipo de negocio</label>
+        <select class="field-input" id="demoType">
+          <option value="✂️ Barbería">✂️ Barbería</option>
+          <option value="🦷 Dentista">🦷 Dentista</option>
+          <option value="🏋️ Gimnasio">🏋️ Gimnasio</option>
+          <option value="🍽️ Restaurante">🍽️ Restaurante</option>
+          <option value="💆 Spa / Estética">💆 Spa / Estética</option>
+          <option value="🏠 Inmobiliaria">🏠 Inmobiliaria</option>
+          <option value="🎓 Educación">🎓 Educación</option>
+          <option value="🚗 Automotriz">🚗 Automotriz</option>
+          <option value="💻 Tecnología">💻 Tecnología</option>
+          <option value="🛒 Tienda">🛒 Tienda</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Emoji del negocio</label>
+        <input class="field-input" id="demoEmoji" placeholder="✂️" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">URL del demo (para el botón "Ver demo")</label>
+      <input class="field-input" id="demoUrl" placeholder="https://tu-demo.vercel.app" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">Color de acento del demo</label>
+      <div class="color-field">
+        <div class="palette-swatch" style="width:48px;height:48px;border-radius:8px;" id="demoColorSwatch">
+          <input type="color" id="demoColor" value="#c9a227" onchange="document.getElementById('demoColorSwatch').style.background=this.value" />
+        </div>
+        <input class="field-input" id="demoColorHex" value="#c9a227" placeholder="#c9a227" style="flex:1;" oninput="syncColorInput()" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Imagen del demo (URL o subir)</label>
+      <input class="field-input" id="demoImgUrl" placeholder="https://... o deja vacío para vista previa automática" style="margin-bottom:8px;" />
+      <div class="upload-zone" style="padding:20px;" id="demoImgZone">
+        <input type="file" accept="image/*" id="demoImgFile" onchange="handleDemoImg(this)" />
+        <div class="upload-icon" style="font-size:24px;">📷</div>
+        <div class="upload-text" style="font-size:13px;">Subir imagen del demo</div>
+        <img id="demoImgPreview" class="uploaded-preview" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Frase del hero (en la miniatura)</label>
+      <input class="field-input" id="demoHeroText" placeholder="Cortes que definen tu estilo" />
+    </div>
+    <div class="field">
+      <label class="field-label">Subtítulo de la miniatura</label>
+      <input class="field-input" id="demoHeroSub" placeholder="Barbería premium · Centro" />
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddDemoModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="saveDemo()">Guardar demo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD TESTIMONIAL MODAL ══ -->
+<div class="modal-overlay" id="addTestModal">
+  <div class="modal">
+    <div class="modal-title">💬 Agregar Testimonio</div>
+    <p class="modal-sub">Añade la reseña de un cliente satisfecho.</p>
+    <input type="hidden" id="editTestIndex" value="-1" />
+
+    <div class="field-row">
+      <div>
+        <label class="field-label">Nombre del cliente</label>
+        <input class="field-input" id="testName" placeholder="Carlos Mendoza" />
+      </div>
+      <div>
+        <label class="field-label">Negocio</label>
+        <input class="field-input" id="testBiz" placeholder="BarberElite · CDMX" />
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Testimonio</label>
+      <textarea class="field-input field-textarea" id="testText" placeholder="Lo que dijo el cliente sobre tu trabajo..."></textarea>
+    </div>
+    <div class="field-row">
+      <div>
+        <label class="field-label">Calificación (1-5)</label>
+        <select class="field-input" id="testStars">
+          <option value="5">⭐⭐⭐⭐⭐ — 5 estrellas</option>
+          <option value="4">⭐⭐⭐⭐ — 4 estrellas</option>
+          <option value="3">⭐⭐⭐ — 3 estrellas</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Emoji avatar</label>
+        <input class="field-input" id="testEmoji" placeholder="💈" />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddTestModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="saveTestimonial()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Cambios guardados correctamente</span>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
+const CREDENTIALS = {
+  email: 'Ian.nunez206@gmail.com',
+  pass: 'Jafetvx7_'
+};
+
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const err   = document.getElementById('loginError');
+
+  if (email === CREDENTIALS.email && pass === CREDENTIALS.pass) {
+    document.getElementById('loginScreen').style.opacity = '0';
+    document.getElementById('loginScreen').style.transition = 'opacity 0.5s ease';
+    setTimeout(() => {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminShell').style.display = 'flex';
+      initAdmin();
+    }, 500);
+  } else {
+    err.style.display = 'block';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').style.borderColor = 'var(--red)';
+    setTimeout(() => { document.getElementById('loginPass').style.borderColor = ''; }, 2000);
+  }
+}
+
+function logout() {
+  document.getElementById('adminShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginScreen').style.opacity = '1';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ══════════════════════════════════════════════
+// DATA STORE (localStorage-backed)
+// ══════════════════════════════════════════════
+const STORE_KEY = 'iandev_admin_data';
+
+function loadData() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || getDefaults(); }
+  catch { return getDefaults(); }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+function getDefaults() {
+  return {
+    demos: [
+      { name:'BarberElite', type:'✂️ Barbería', emoji:'✂️', url:'#', color:'#c9a227', heroText:'Cortes que definen tu estilo', heroSub:'Barbería premium · Centro', img:'' },
+      { name:'DentalPlus', type:'🦷 Dentista', emoji:'🦷', url:'#', color:'#4a9eff', heroText:'Tu sonrisa perfecta te espera', heroSub:'Clínica dental moderna', img:'' },
+      { name:'PowerGym', type:'🏋️ Gimnasio', emoji:'⚡', url:'#', color:'#ff4d4d', heroText:'Entrena sin límites', heroSub:'El gimnasio que te impulsa', img:'' },
+      { name:'La Fogata', type:'🍽️ Restaurante', emoji:'🍽', url:'#', color:'#4dcc7a', heroText:'Sabores que enamoran', heroSub:'Cocina artesanal auténtica', img:'' }
+    ],
+    testimonials: [
+      { name:'Carlos Mendoza', biz:'BarberElite · Ciudad de México', text:'Antes dependía solo de Instagram. Ahora recibo reservas por la página a toda hora. La inversión se pagó sola en el primer mes.', stars:5, emoji:'💈' },
+      { name:'Dra. Ana García', biz:'DentalPlus · Guadalajara', text:'El diseño quedó increíble. Mis pacientes me dicen que la página les da mucha confianza. Las citas online redujeron mis llamadas un 60%.', stars:5, emoji:'🦷' },
+      { name:'Roberto Sánchez', biz:'PowerGym · Monterrey', text:'En tres semanas ya teníamos 40 nuevos socios que llegaron por la página web. Vale cada peso.', stars:5, emoji:'🏋️' },
+      { name:'Lucía Ramírez', biz:'La Fogata · Puebla', text:'Nuestras reservas de mesa aumentaron 45% en el primer mes. La página se ve de lujo. Totalmente recomendado.', stars:5, emoji:'🍽️' }
+    ],
+    visibility: {
+      hero: true, problema: true, solucion: true, demos: true,
+      precios: true, proceso: true, testimonios: true, cta: true
+    },
+    colors: {
+      gold: '#d4a843',
+      goldLight: '#f0c96a',
+      black: '#080810',
+      surface: '#0d0d1a'
+    }
+  };
+}
+
+let appData = loadData();
+
+// ══════════════════════════════════════════════
+// PANEL NAVIGATION
+// ══════════════════════════════════════════════
+const panelTitles = {
+  dashboard: 'Dashboard',
+  identidad: 'Identidad & Logo',
+  colores: 'Colores & Tipografía',
+  hero: 'Hero Section',
+  demos: 'Demos & Portafolio',
+  precios: 'Precios',
+  testimonios: 'Testimonios',
+  contacto: 'Contacto & Redes',
+  secciones: 'Visibilidad de Secciones',
+  seo: 'SEO & Meta'
+};
+
+function showPanel(btn) {
+  const panelId = btn.dataset.panel;
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panelId).classList.add('active');
+  document.getElementById('topbarTitle').textContent = panelTitles[panelId] || panelId;
+  // Close sidebar on mobile
+  if (window.innerWidth < 900) toggleSidebar(false);
+}
+
+function showPanelById(id) {
+  const btn = document.querySelector(`[data-panel="${id}"]`);
+  if (btn) showPanel(btn);
+}
+
+function toggleSidebar(force) {
+  const s = document.getElementById('sidebar');
+  if (force === false) s.classList.remove('open');
+  else s.classList.toggle('open');
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+function initAdmin() {
+  renderDemoList();
+  renderTestimonialList();
+  renderPricingGrid();
+  renderPalette();
+  renderFonts();
+  renderVisibility();
+  updateDashboardStats();
+}
+
+// ══════════════════════════════════════════════
+// DEMOS
+// ══════════════════════════════════════════════
+function renderDemoList() {
+  const list = document.getElementById('demoList');
+  list.innerHTML = '';
+  appData.demos.forEach((demo, i) => {
+    const card = document.createElement('div');
+    card.className = 'demo-admin-card';
+    card.innerHTML = `
+      <div class="demo-admin-thumb" style="background:${demo.color}22;font-size:26px;">${demo.emoji || '🖥️'}</div>
+      <div class="demo-admin-info">
+        <div class="demo-admin-name">${demo.name}</div>
+        <div class="demo-admin-type">${demo.type}</div>
+        <div class="demo-admin-url">${demo.url || 'Sin URL asignada'}</div>
+      </div>
+      <div class="demo-admin-actions">
+        <button class="btn-icon" onclick="editDemo(${i})" title="Editar">✏️</button>
+        <button class="btn-icon" onclick="moveDemo(${i},-1)" title="Subir">↑</button>
+        <button class="btn-icon" onclick="moveDemo(${i},1)" title="Bajar">↓</button>
+        <button class="btn-icon danger" onclick="deleteDemo(${i})" title="Eliminar">🗑️</button>
+      </div>`;
+    list.appendChild(card);
+  });
+  document.getElementById('stat-demos').textContent = appData.demos.length;
+}
+
+function openAddDemoModal() {
+  document.getElementById('editDemoIndex').value = -1;
+  document.getElementById('demoName').value = '';
+  document.getElementById('demoUrl').value = '';
+  document.getElementById('demoColor').value = '#c9a227';
+  document.getElementById('demoColorHex').value = '#c9a227';
+  document.getElementById('demoColorSwatch').style.background = '#c9a227';
+  document.getElementById('demoHeroText').value = '';
+  document.getElementById('demoHeroSub').value = '';
+  document.getElementById('demoEmoji').value = '';
+  document.getElementById('demoImgUrl').value = '';
+  document.getElementById('demoImgPreview').style.display = 'none';
+  document.getElementById('addDemoModal').classList.add('open');
+}
+
+function editDemo(i) {
+  const d = appData.demos[i];
+  document.getElementById('editDemoIndex').value = i;
+  document.getElementById('demoName').value = d.name;
+  document.getElementById('demoUrl').value = d.url;
+  document.getElementById('demoColor').value = d.color;
+  document.getElementById('demoColorHex').value = d.color;
+  document.getElementById('demoColorSwatch').style.background = d.color;
+  document.getElementById('demoHeroText').value = d.heroText;
+  document.getElementById('demoHeroSub').value = d.heroSub;
+  document.getElementById('demoEmoji').value = d.emoji;
+  document.getElementById('demoImgUrl').value = d.img || '';
+  document.getElementById('demoType').value = d.type;
+  document.getElementById('addDemoModal').classList.add('open');
+}
+
+function closeAddDemoModal() {
+  document.getElementById('addDemoModal').classList.remove('open');
+}
+
+function saveDemo() {
+  const idx = parseInt(document.getElementById('editDemoIndex').value);
+  const demo = {
+    name: document.getElementById('demoName').value || 'Sin nombre',
+    type: document.getElementById('demoType').value,
+    emoji: document.getElementById('demoEmoji').value || '🖥️',
+    url: document.getElementById('demoUrl').value || '#',
+    color: document.getElementById('demoColor').value,
+    heroText: document.getElementById('demoHeroText').value,
+    heroSub: document.getElementById('demoHeroSub').value,
+    img: document.getElementById('demoImgUrl').value || (document.getElementById('demoImgPreview').src && document.getElementById('demoImgPreview').style.display !== 'none' ? document.getElementById('demoImgPreview').src : '')
+  };
+
+  if (idx === -1) appData.demos.push(demo);
+  else appData.demos[idx] = demo;
+
+  saveData(appData);
+  renderDemoList();
+  closeAddDemoModal();
+  showToast('✅', 'Demo guardado correctamente');
+}
+
+function deleteDemo(i) {
+  if (!confirm('¿Eliminar este demo?')) return;
+  appData.demos.splice(i, 1);
+  saveData(appData);
+  renderDemoList();
+  showToast('🗑️', 'Demo eliminado');
+}
+
+function moveDemo(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= appData.demos.length) return;
+  [appData.demos[i], appData.demos[j]] = [appData.demos[j], appData.demos[i]];
+  saveData(appData);
+  renderDemoList();
+}
+
+function syncColorInput() {
+  const val = document.getElementById('demoColorHex').value;
+  if (/^#[0-9a-f]{6}$/i.test(val)) {
+    document.getElementById('demoColor').value = val;
+    document.getElementById('demoColorSwatch').style.background = val;
+  }
+}
+
+function handleDemoImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('demoImgPreview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('demoImgUrl').value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleLogoUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('logoPreviewImg');
+    img.src = e.target.result;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ══════════════════════════════════════════════
+// TESTIMONIALS
+// ══════════════════════════════════════════════
+function renderTestimonialList() {
+  const list = document.getElementById('testimonialList');
+  list.innerHTML = '';
+  appData.testimonials.forEach((t, i) => {
+    const card = document.createElement('div');
+    card.className = 'demo-admin-card';
+    const stars = '⭐'.repeat(t.stars);
+    card.innerHTML = `
+      <div class="demo-admin-thumb" style="background:rgba(212,168,67,0.1);font-size:22px;">${t.emoji || '💬'}</div>
+      <div class="demo-admin-info" style="flex:1;">
+        <div class="demo-admin-name">${t.name} ${stars}</div>
+        <div class="demo-admin-type">${t.biz}</div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:4px;font-style:italic;">"${t.text.substring(0,80)}..."</div>
+      </div>
+      <div class="demo-admin-actions">
+        <button class="btn-icon" onclick="editTestimonial(${i})">✏️</button>
+        <button class="btn-icon danger" onclick="deleteTestimonial(${i})">🗑️</button>
+      </div>`;
+    list.appendChild(card);
+  });
+  document.getElementById('stat-testimonios').textContent = appData.testimonials.length;
+}
+
+function openAddTestimonial() {
+  document.getElementById('editTestIndex').value = -1;
+  document.getElementById('testName').value = '';
+  document.getElementById('testBiz').value = '';
+  document.getElementById('testText').value = '';
+  document.getElementById('testEmoji').value = '';
+  document.getElementById('addTestModal').classList.add('open');
+}
+
+function editTestimonial(i) {
+  const t = appData.testimonials[i];
+  document.getElementById('editTestIndex').value = i;
+  document.getElementById('testName').value = t.name;
+  document.getElementById('testBiz').value = t.biz;
+  document.getElementById('testText').value = t.text;
+  document.getElementById('testEmoji').value = t.emoji;
+  document.getElementById('testStars').value = t.stars;
+  document.getElementById('addTestModal').classList.add('open');
+}
+
+function closeAddTestModal() { document.getElementById('addTestModal').classList.remove('open'); }
+
+function saveTestimonial() {
+  const idx = parseInt(document.getElementById('editTestIndex').value);
+  const t = {
+    name: document.getElementById('testName').value,
+    biz: document.getElementById('testBiz').value,
+    text: document.getElementById('testText').value,
+    stars: parseInt(document.getElementById('testStars').value),
+    emoji: document.getElementById('testEmoji').value || '💬'
+  };
+  if (idx === -1) appData.testimonials.push(t);
+  else appData.testimonials[idx] = t;
+  saveData(appData); renderTestimonialList(); closeAddTestModal();
+  showToast('✅', 'Testimonio guardado');
+}
+
+function deleteTestimonial(i) {
+  if (!confirm('¿Eliminar este testimonio?')) return;
+  appData.testimonials.splice(i, 1);
+  saveData(appData); renderTestimonialList();
+  showToast('🗑️', 'Testimonio eliminado');
+}
+
+// ══════════════════════════════════════════════
+// PRICING
+// ══════════════════════════════════════════════
+const defaultPlans = [
+  { plan:'Básico', name:'Landing Profesional', price:'120', note:'Pago único · 5 días', features:'Diseño profesional\nHasta 5 secciones\nFormulario de contacto\nOptimizado para celular\nSEO básico\nHosting 1 año', featured: false },
+  { plan:'Profesional', name:'Landing + Reservas', price:'250', note:'Pago único · 7 días', features:'Todo del plan básico\nSistema de reservas online\nNotificaciones automáticas\nCalendario de disponibilidad\nGalería de fotos\nGoogle Maps integrado\nBotón WhatsApp flotante', featured: true },
+  { plan:'Premium', name:'Sistema Completo', price:'400', note:'Pago único · 10 días', features:'Todo del plan profesional\nPanel de administración\nGestión de clientes CRM\nReportes y estadísticas\nBlog del negocio\nPagos online integrados\nSoporte prioritario 3 meses', featured: false }
+];
+
+function renderPricingGrid() {
+  const grid = document.getElementById('pricingGrid');
+  grid.innerHTML = '';
+  defaultPlans.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'pricing-admin-card' + (p.featured ? ' featured-admin' : '');
+    card.innerHTML = `
+      <div class="pac-plan">Plan ${i+1} ${p.featured ? '⭐ Popular' : ''}</div>
+      <div class="field" style="margin-bottom:12px;">
+        <label class="field-label">Nombre del plan</label>
+        <input class="field-input" value="${p.name}" id="plan${i}name" />
+      </div>
+      <div class="field-row" style="gap:10px;margin-bottom:12px;">
+        <div>
+          <label class="field-label">Precio $</label>
+          <input class="field-input" value="${p.price}" id="plan${i}price" type="number" />
+        </div>
+        <div>
+          <label class="field-label">Nota</label>
+          <input class="field-input" value="${p.note}" id="plan${i}note" />
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Características (una por línea)</label>
+        <textarea class="field-input field-textarea" id="plan${i}features" style="min-height:130px;">${p.features}</textarea>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════════
+// COLORS
+// ══════════════════════════════════════════════
+const colorDefs = [
+  { id:'gold', label:'Color dorado', val:'#d4a843' },
+  { id:'goldLight', label:'Dorado claro', val:'#f0c96a' },
+  { id:'black', label:'Fondo principal', val:'#080810' },
+  { id:'surface', label:'Fondo secondary', val:'#0d0d1a' },
+  { id:'white', label:'Texto principal', val:'#ffffff' },
+  { id:'accent', label:'Color acento', val:'#2563ff' },
+];
+
+function renderPalette() {
+  const grid = document.getElementById('paletteGrid');
+  grid.innerHTML = '';
+  colorDefs.forEach(c => {
+    const item = document.createElement('div');
+    item.className = 'palette-item';
+    item.innerHTML = `
+      <div class="palette-swatch" style="background:${c.val};" id="swatch-${c.id}">
+        <input type="color" value="${c.val}" id="color-${c.id}"
+          onchange="updateColor('${c.id}',this.value)" />
+      </div>
+      <div class="palette-name">${c.label}</div>
+      <input class="field-input" style="margin-top:4px;padding:6px 10px;font-size:11px;"
+        value="${c.val}" id="colorhex-${c.id}"
+        oninput="syncSwatchFromHex('${c.id}',this.value)" />`;
+    grid.appendChild(item);
+  });
+}
+
+function updateColor(id, val) {
+  document.getElementById(`swatch-${id}`).style.background = val;
+  document.getElementById(`colorhex-${id}`).value = val;
+  appData.colors[id] = val;
+}
+
+function syncSwatchFromHex(id, val) {
+  if (/^#[0-9a-f]{6}$/i.test(val)) {
+    document.getElementById(`swatch-${id}`).style.background = val;
+    document.getElementById(`color-${id}`).value = val;
+    appData.colors[id] = val;
+  }
+}
+
+function applyPreset(preset) {
+  const presets = {
+    'dark-gold': { gold:'#d4a843', goldLight:'#f0c96a', black:'#080810', surface:'#0d0d1a' },
+    'midnight-blue': { gold:'#60a5fa', goldLight:'#93c5fd', black:'#050a14', surface:'#081020' },
+    'emerald': { gold:'#4ade80', goldLight:'#86efac', black:'#050f0a', surface:'#091a12' }
+  };
+  const p = presets[preset]; if (!p) return;
+  Object.entries(p).forEach(([id, val]) => {
+    const sw = document.getElementById(`swatch-${id}`);
+    const co = document.getElementById(`color-${id}`);
+    const ch = document.getElementById(`colorhex-${id}`);
+    if (sw) sw.style.background = val;
+    if (co) co.value = val;
+    if (ch) ch.value = val;
+    appData.colors[id] = val;
+  });
+  showToast('🎨', `Preset "${preset}" aplicado`);
+}
+
+// ══════════════════════════════════════════════
+// FONTS
+// ══════════════════════════════════════════════
+const fontPairs = [
+  { id:'jakarta', name:'Plus Jakarta', preview:'Aa', style:'font-family:Plus Jakarta Sans,sans-serif' },
+  { id:'syne', name:'Syne + DM Sans', preview:'Aa', style:'font-family:Syne,sans-serif' },
+  { id:'inter', name:'Inter', preview:'Aa', style:'font-family:Inter,sans-serif' },
+  { id:'cormorant', name:'Cormorant', preview:'Aa', style:'font-family:Cormorant Garamond,serif' },
+  { id:'raleway', name:'Raleway', preview:'Aa', style:'font-family:Raleway,sans-serif' },
+  { id:'outfit', name:'Outfit', preview:'Aa', style:'font-family:Outfit,sans-serif' },
+];
+
+function renderFonts() {
+  const grid = document.getElementById('fontGrid');
+  grid.innerHTML = '';
+  fontPairs.forEach(f => {
+    const opt = document.createElement('div');
+    opt.className = 'font-option' + (f.id === 'jakarta' ? ' selected' : '');
+    opt.setAttribute('data-font', f.id);
+    opt.innerHTML = `
+      <div class="font-option-preview" style="${f.style};font-size:28px;">${f.preview}</div>
+      <div class="font-option-name">${f.name}</div>`;
+    opt.onclick = () => {
+      document.querySelectorAll('.font-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      showToast('🔤', `Fuente "${f.name}" seleccionada`);
+    };
+    grid.appendChild(opt);
+  });
+}
+
+// ══════════════════════════════════════════════
+// VISIBILITY
+// ══════════════════════════════════════════════
+const sectionLabels = {
+  hero: { icon:'🚀', label:'Hero principal', desc:'La sección de entrada con el título y botones' },
+  problema: { icon:'⚠️', label:'Sección Problema', desc:'Las 4 tarjetas de por qué necesitan página web' },
+  solucion: { icon:'✅', label:'Sección Solución', desc:'Las 6 cards de características' },
+  demos: { icon:'🖥️', label:'Slider de Demos', desc:'El showcase de páginas creadas' },
+  precios: { icon:'💰', label:'Sección Precios', desc:'Los 3 planes de precio' },
+  proceso: { icon:'⚙️', label:'Proceso en 4 pasos', desc:'Cómo trabajas con el cliente' },
+  testimonios: { icon:'💬', label:'Testimonios', desc:'Reseñas de clientes satisfechos' },
+  cta: { icon:'📣', label:'CTA final', desc:'El llamado a la acción al final' },
+};
+
+function renderVisibility() {
+  const list = document.getElementById('visibilityList');
+  list.innerHTML = '';
+  let visible = 0;
+  Object.entries(sectionLabels).forEach(([id, meta]) => {
+    const isOn = appData.visibility[id] !== false;
+    if (isOn) visible++;
+    const row = document.createElement('div');
+    row.className = 'toggle-row';
+    row.innerHTML = `
+      <div>
+        <div class="toggle-label">${meta.icon} ${meta.label}</div>
+        <div class="toggle-desc">${meta.desc}</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" ${isOn ? 'checked' : ''} onchange="toggleSection('${id}',this.checked)" />
+        <div class="toggle-slider"></div>
+      </label>`;
+    list.appendChild(row);
+  });
+  document.getElementById('stat-secciones').textContent = visible;
+}
+
+function toggleSection(id, val) {
+  appData.visibility[id] = val;
+  saveData(appData);
+  let v = Object.values(appData.visibility).filter(Boolean).length;
+  document.getElementById('stat-secciones').textContent = v;
+}
+
+// ══════════════════════════════════════════════
+// SAVE ALL
+// ══════════════════════════════════════════════
+function saveAll() {
+  saveData(appData);
+  showToast('💾', 'Todos los cambios han sido guardados');
+}
+
+function updateDashboardStats() {
+  document.getElementById('stat-demos').textContent = appData.demos.length;
+  document.getElementById('stat-testimonios').textContent = appData.testimonials.length;
+  let v = Object.values(appData.visibility).filter(Boolean).length;
+  document.getElementById('stat-secciones').textContent = v;
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+let toastTimeout;
+function showToast(icon, msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+</script>
+</body>
+</html>

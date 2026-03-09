@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WebLocal — Páginas Web para Negocios Locales</title>
+  <title>Ian Dev — Páginas Web para Negocios Locales</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <!-- GSAP + Plugins -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -36,9 +36,9 @@
       --border-gold: rgba(212,168,67,0.25);
       --radius: 16px;
       --radius-lg: 24px;
-      --font-display: 'Syne', sans-serif;
-      --font-body: 'DM Sans', sans-serif;
-      --font-serif: 'Playfair Display', serif;
+      --font-display: 'Plus Jakarta Sans', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-serif: 'Instrument Serif', serif;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1546,18 +1546,93 @@
     }
 
     @media (max-width: 768px) {
-      .section { padding: 80px 0; }
+      .section { padding: 70px 0; }
+      .container { padding: 0 18px; }
       .nav-links { display: none; }
       .btn-nav { display: none; }
       .hamburger { display: flex; }
-      .problem-grid { grid-template-columns: 1fr; }
-      .solution-grid { grid-template-columns: 1fr; }
-      .process-steps { grid-template-columns: 1fr; }
-      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+      .problem-grid { grid-template-columns: 1fr; gap: 14px; }
+      .solution-grid { grid-template-columns: 1fr; gap: 14px; }
+      .process-steps { grid-template-columns: 1fr; gap: 28px; }
+      .footer-inner { grid-template-columns: 1fr; gap: 28px; }
       .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
-      .hero-stats { flex-wrap: wrap; gap: 24px; }
+      .hero-stats { flex-wrap: wrap; gap: 20px; }
       .demo-card { width: calc(100% - 0px); }
       .testimonial-card { width: calc(100% - 0px); }
+
+      /* Mobile hero */
+      .hero-title { font-size: 32px !important; letter-spacing: -0.02em; }
+      .hero-sub { font-size: 15px; }
+      .hero-cta { flex-direction: column; gap: 12px; }
+      .hero-cta .btn-primary, .hero-cta .btn-secondary { width: 100%; justify-content: center; padding: 15px 24px; }
+      .hero-stats .stat-number { font-size: 22px; }
+      .hero-badge { font-size: 10px; }
+
+      /* Section titles mobile */
+      .section-title { font-size: 26px !important; line-height: 1.15; }
+      .section-sub { font-size: 14px; }
+
+      /* Problem cards mobile */
+      .problem-card { padding: 24px 20px; }
+      .problem-icon { font-size: 28px; margin-bottom: 14px; }
+      .problem-title { font-size: 15px; }
+
+      /* Solution cards mobile */
+      .solution-card { padding: 28px 22px; }
+      .solution-icon { width: 48px; height: 48px; font-size: 20px; margin-bottom: 18px; }
+      .solution-title { font-size: 16px; }
+
+      /* Pricing mobile */
+      .pricing-grid { grid-template-columns: 1fr; max-width: 100%; margin: 48px 0 0; }
+      .pricing-card { padding: 30px 24px; }
+      .price-amount { font-size: 42px; }
+      .pricing-card.featured { order: -1; }
+
+      /* Process mobile */
+      .process-steps::before { display: none; }
+      .process-step { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+      /* CTA mobile */
+      .cta-title { font-size: 30px !important; }
+      .cta-sub { font-size: 15px; }
+      .cta-buttons { flex-direction: column; gap: 12px; align-items: center; }
+      .btn-whatsapp { width: 100%; justify-content: center; padding: 16px 24px; font-size: 15px; }
+      .cta-buttons .btn-secondary { width: 100%; justify-content: center; }
+
+      /* Testimonials mobile */
+      .testimonials-track { margin-top: 40px; }
+      .testimonial-card { padding: 24px 20px; }
+      .testimonial-text { font-size: 14px; }
+
+      /* Footer mobile */
+      .footer-brand-desc { max-width: 100%; }
+      .footer-inner > div:not(:first-child) { border-top: 1px solid var(--border); padding-top: 24px; }
+
+      /* Nav mobile */
+      nav { padding: 12px 0; }
+      .nav-logo { font-size: 18px; }
+
+      /* Section numbers */
+      .section-number { font-size: 70px; }
+
+      /* Marquee mobile */
+      .marquee-item { padding: 0 24px; font-size: 11px; }
+
+      /* Demos slider mobile */
+      .demos-slider-wrap { margin-top: 40px; }
+      .slider-controls { margin-top: 28px; }
+
+      /* Hide cursor on touch */
+      .cursor { display: none !important; }
+
+      /* Floating cards hide on small screens for perf */
+      .floating-card { display: none; }
+    }
+
+    @media (max-width: 400px) {
+      .hero-title { font-size: 27px !important; }
+      .section-title { font-size: 23px !important; }
+      .pricing-card { padding: 24px 18px; }
     }
 
     /* Mobile menu */
@@ -1773,7 +1848,7 @@
       <div class="nav-inner">
         <a href="#" class="nav-logo">
           <div class="logo-dot"></div>
-          Web<span>Local</span>
+          Ian<span>Dev</span>
         </a>
         <ul class="nav-links">
           <li><a href="#problema">Problema</a></li>
@@ -1782,7 +1857,7 @@
           <li><a href="#precios">Precios</a></li>
           <li><a href="#proceso">Proceso</a></li>
         </ul>
-        <a href="https://wa.me/1234567890?text=Hola,%20me%20interesa%20una%20página%20web" target="_blank" class="btn-nav">Hablar ahora →</a>
+        <a href="https://wa.me/525549027490?text=Hola,%20me%20interesa%20una%20página%20web" target="_blank" class="btn-nav">Contactar ahora →</a>
         <button class="hamburger" id="hamburger" aria-label="Menú">
           <span></span><span></span><span></span>
         </button>
@@ -1798,7 +1873,7 @@
     <a href="#demos" onclick="closeMobileMenu()">Demos</a>
     <a href="#precios" onclick="closeMobileMenu()">Precios</a>
     <a href="#proceso" onclick="closeMobileMenu()">Proceso</a>
-    <a href="https://wa.me/1234567890" target="_blank" class="btn-primary" style="width:fit-content;margin-top:16px;">Hablar por WhatsApp</a>
+    <a href="https://wa.me/525549027490" target="_blank" class="btn-primary" style="width:fit-content;margin-top:16px;">Contactar por WhatsApp</a>
   </div>
 
   <!-- ============ HERO ============ -->
@@ -1828,7 +1903,7 @@
               Ver demostraciones
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
-            <a href="https://wa.me/1234567890?text=Hola,%20me%20interesa%20una%20página%20web" target="_blank" class="btn-secondary">
+            <a href="https://wa.me/525549027490?text=Hola,%20me%20interesa%20una%20página%20web" target="_blank" class="btn-secondary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
               WhatsApp
             </a>
@@ -2248,7 +2323,7 @@
             <li><span class="check">✓</span> SEO básico incluido</li>
             <li><span class="check">✓</span> Hosting 1 año incluido</li>
           </ul>
-          <a href="https://wa.me/1234567890?text=Quiero%20el%20Plan%20Básico%20de%20$120" target="_blank" class="btn-pricing btn-pricing-outline">Contratar ahora →</a>
+          <a href="https://wa.me/525549027490?text=Quiero%20el%20Plan%20Básico%20de%20$120" target="_blank" class="btn-pricing btn-pricing-outline">Contratar ahora →</a>
         </div>
 
         <!-- Plan 2 (featured) -->
@@ -2270,7 +2345,7 @@
             <li><span class="check">✓</span> Google Maps integrado</li>
             <li><span class="check">✓</span> Botón WhatsApp flotante</li>
           </ul>
-          <a href="https://wa.me/1234567890?text=Quiero%20el%20Plan%20Profesional%20de%20$250" target="_blank" class="btn-pricing btn-pricing-gold">Contratar ahora →</a>
+          <a href="https://wa.me/525549027490?text=Quiero%20el%20Plan%20Profesional%20de%20$250" target="_blank" class="btn-pricing btn-pricing-gold">Contratar ahora →</a>
         </div>
 
         <!-- Plan 3 -->
@@ -2291,7 +2366,7 @@
             <li><span class="check">✓</span> Pagos online integrados</li>
             <li><span class="check">✓</span> Soporte prioritario 3 meses</li>
           </ul>
-          <a href="https://wa.me/1234567890?text=Quiero%20el%20Plan%20Premium%20de%20$400" target="_blank" class="btn-pricing btn-pricing-outline">Contratar ahora →</a>
+          <a href="https://wa.me/525549027490?text=Quiero%20el%20Plan%20Premium%20de%20$400" target="_blank" class="btn-pricing btn-pricing-outline">Contratar ahora →</a>
         </div>
 
       </div>
@@ -2421,9 +2496,9 @@
           Únete a los más de 50 negocios que ya tienen presencia online y reciben clientes mientras duermen.
         </p>
         <div class="cta-buttons">
-          <a href="https://wa.me/1234567890?text=Hola,%20quiero%20información%20sobre%20páginas%20web%20para%20mi%20negocio" target="_blank" class="btn-whatsapp">
+          <a href="https://wa.me/525549027490?text=Hola,%20quiero%20información%20sobre%20páginas%20web%20para%20mi%20negocio" target="_blank" class="btn-whatsapp">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-            Hablar por WhatsApp ahora
+            Contactar por WhatsApp ahora
           </a>
           <a href="#precios" class="btn-secondary" style="padding:18px 36px;font-size:15px;">Ver precios →</a>
         </div>
@@ -2441,7 +2516,7 @@
         <div>
           <a href="#" class="nav-logo" style="font-size:22px;">
             <div class="logo-dot"></div>
-            Web<span>Local</span>
+            Ian<span>Dev</span>
           </a>
           <p class="footer-brand-desc">
             Desarrollamos páginas web modernas para negocios locales. Más visibilidad, más reservas, más clientes.
@@ -2468,27 +2543,27 @@
         <div>
           <div class="footer-title">Contacto</div>
           <ul class="footer-links">
-            <li><a href="https://wa.me/1234567890" target="_blank">WhatsApp</a></li>
-            <li><a href="mailto:hola@weblocal.com">Email</a></li>
+            <li><a href="https://wa.me/525549027490" target="_blank">WhatsApp</a></li>
+            <li><a href="/cdn-cgi/l/email-protection#c0a8afaca180b7a5a2acafa3a1aceea3afad">Email</a></li>
             <li><a href="#" target="_blank">Instagram</a></li>
             <li><a href="#" target="_blank">Facebook</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <div class="footer-copy">© 2025 WebLocal. Todos los derechos reservados.</div>
+        <div class="footer-copy">© 2025 Ian Dev. Todos los derechos reservados. <a href="admin.html" style="color:rgba(255,255,255,0.1);font-size:11px;margin-left:8px;" title="Admin">·</a></div>
         <div class="social-links">
           <a href="#" class="social-link" title="Instagram">📸</a>
           <a href="#" class="social-link" title="Facebook">📘</a>
-          <a href="https://wa.me/1234567890" target="_blank" class="social-link" title="WhatsApp">💬</a>
-          <a href="mailto:hola@weblocal.com" class="social-link" title="Email">✉️</a>
+          <a href="https://wa.me/525549027490" target="_blank" class="social-link" title="WhatsApp">💬</a>
+          <a href="/cdn-cgi/l/email-protection#650d0a090425120007090a0604094b060a08" class="social-link" title="Email">✉️</a>
         </div>
       </div>
     </div>
   </footer>
 
   <!-- ============ SCRIPTS ============ -->
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Wait for GSAP to load
   window.addEventListener('load', () => {
 
@@ -3040,11 +3115,4 @@
   }); // end load
 
   // =============================================
-  // closeMobileMenu (needs to be global)
-  // =============================================
-  function closeMobileMenu() {
-    document.getElementById('mobileMenu').classList.remove('open');
-  }
-  </script>
-</body>
-</html>
+  // closeMobileMenu (needs to be gl
