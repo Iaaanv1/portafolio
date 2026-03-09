@@ -2177,7 +2177,7 @@
                 <div class="demo-name">BarberElite</div>
                 <div class="demo-type">✂️ Barbería</div>
               </div>
-              <a href="#" class="btn-demo">Ver demo →</a>
+              <a href="#" class="btn-demo" data-demo-index="0" target="_blank">Ver demo →</a>
             </div>
           </div>
 
@@ -2210,7 +2210,7 @@
                 <div class="demo-name">DentalPlus</div>
                 <div class="demo-type">🦷 Clínica dental</div>
               </div>
-              <a href="#" class="btn-demo">Ver demo →</a>
+              <a href="#" class="btn-demo" data-demo-index="1" target="_blank">Ver demo →</a>
             </div>
           </div>
 
@@ -2243,7 +2243,7 @@
                 <div class="demo-name">PowerGym</div>
                 <div class="demo-type">🏋️ Gimnasio</div>
               </div>
-              <a href="#" class="btn-demo">Ver demo →</a>
+              <a href="#" class="btn-demo" data-demo-index="2" target="_blank">Ver demo →</a>
             </div>
           </div>
 
@@ -2276,7 +2276,7 @@
                 <div class="demo-name">La Fogata</div>
                 <div class="demo-type">🍽️ Restaurante</div>
               </div>
-              <a href="#" class="btn-demo">Ver demo →</a>
+              <a href="#" class="btn-demo" data-demo-index="3" target="_blank">Ver demo →</a>
             </div>
           </div>
 
@@ -2561,6 +2561,124 @@
       </div>
     </div>
   </footer>
+
+  <!-- ============ ADMIN DATA SYNC ============ -->
+  <!-- Lee los demos guardados desde el panel admin y conecta los URLs -->
+  <script>
+  (function syncAdminDemos() {
+    try {
+      const raw = localStorage.getItem('iandev_admin_data');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (!data || !Array.isArray(data.demos)) return;
+
+      // Actualizar botones "Ver demo" con los URLs del admin
+      data.demos.forEach(function(demo, i) {
+        // Botón del slider de demos
+        const btn = document.querySelector('[data-demo-index="' + i + '"]');
+        if (btn) {
+          const url = (demo.url || '').trim();
+          if (url && url !== '#' && url !== '') {
+            btn.href = url;
+            btn.target = '_blank';
+            btn.rel = 'noopener noreferrer';
+          }
+        }
+
+        // También actualizar el nombre y tipo visibles en la card
+        const cards = document.querySelectorAll('#demosSlider .demo-card');
+        if (cards[i]) {
+          const nameEl = cards[i].querySelector('.demo-name');
+          const typeEl = cards[i].querySelector('.demo-type');
+          const urlEl  = cards[i].querySelector('.demo-screen-url');
+          if (nameEl && demo.name) nameEl.textContent = demo.name;
+          if (typeEl && demo.type) typeEl.textContent = demo.type;
+          if (urlEl  && demo.url && demo.url !== '#') {
+            // Mostrar dominio limpio en la barra del navegador falso
+            try {
+              urlEl.textContent = new URL(demo.url).hostname;
+            } catch(e) {
+              urlEl.textContent = demo.url;
+            }
+          }
+          // Si hay imagen guardada, mostrarla como fondo de la pantalla del demo
+          if (demo.img && demo.img.length > 10) {
+            const screen = cards[i].querySelector('.demo-screen-content');
+            if (screen) {
+              screen.style.backgroundImage = 'url(' + demo.img + ')';
+              screen.style.backgroundSize = 'cover';
+              screen.style.backgroundPosition = 'center';
+            }
+          }
+          // Actualizar el color acento del mock
+          if (demo.color) {
+            const accentEls = cards[i].querySelectorAll('.demo-accent');
+            accentEls.forEach(function(el) { el.style.color = demo.color; });
+            const mockBtn = cards[i].querySelector('.demo-mock-btn');
+            if (mockBtn) mockBtn.style.background = 'linear-gradient(135deg,' + demo.color + ',' + demo.color + 'aa)';
+          }
+          // Hero text en miniatura
+          if (demo.heroText) {
+            const heroTitleEl = cards[i].querySelector('.demo-mock-hero-title');
+            if (heroTitleEl) heroTitleEl.textContent = demo.heroText;
+          }
+          if (demo.heroSub) {
+            const heroSubEl = cards[i].querySelector('.demo-mock-hero-sub');
+            if (heroSubEl) heroSubEl.textContent = demo.heroSub;
+          }
+          // Logo/nombre en mock nav
+          if (demo.name && demo.emoji) {
+            const logoEl = cards[i].querySelector('.demo-mock-logo');
+            if (logoEl) logoEl.textContent = demo.emoji + ' ' + demo.name;
+          }
+        }
+      });
+
+      // Si el admin agregó más demos de los que existen en el HTML, renderizar dinámicamente
+      if (data.demos.length > 4) {
+        const slider = document.getElementById('demosSlider');
+        for (let i = 4; i < data.demos.length; i++) {
+          const demo = data.demos[i];
+          const card = document.createElement('div');
+          card.className = 'demo-card';
+          const url = (demo.url && demo.url !== '#') ? demo.url : '#';
+          const hostname = (() => { try { return new URL(demo.url).hostname; } catch(e) { return demo.name.toLowerCase().replace(/\s/g,'-') + '.com'; } })();
+          const bgImg = demo.img ? 'background-image:url(' + demo.img + ');background-size:cover;background-position:center;' : '';
+          card.innerHTML = `
+            <div class="demo-screen" style="background:linear-gradient(160deg,#0d0d14 0%,#1a1020 100%);">
+              <div class="demo-screen-bar">
+                <div class="demo-screen-dots"><span></span><span></span><span></span></div>
+                <div class="demo-screen-url">${hostname}</div>
+              </div>
+              <div class="demo-screen-content" style="${bgImg}">
+                <div>
+                  <div class="demo-mock-nav">
+                    <span class="demo-mock-logo" style="color:${demo.color||'#d4a843'};">${demo.emoji||'🖥️'} ${demo.name}</span>
+                    <div class="demo-mock-links"><span>Inicio</span><span>Contacto</span></div>
+                  </div>
+                  <div class="demo-mock-hero-title" style="color:${demo.color||'#d4a843'};">${demo.heroText||demo.name}</div>
+                  <div class="demo-mock-hero-sub">${demo.heroSub||demo.type||''}</div>
+                  <div class="demo-mock-btn" style="background:linear-gradient(135deg,${demo.color||'#d4a843'},${demo.color||'#a07a20'});color:#000;">Ver más →</div>
+                </div>
+              </div>
+            </div>
+            <div class="demo-info">
+              <div>
+                <div class="demo-name">${demo.name}</div>
+                <div class="demo-type">${demo.type||''}</div>
+              </div>
+              <a href="${url}" class="btn-demo" data-demo-index="${i}" target="_blank" rel="noopener noreferrer">Ver demo →</a>
+            </div>`;
+          slider.appendChild(card);
+        }
+      }
+
+    } catch(err) {
+      // Silently fail — no romper la página si no hay datos del admin
+      console.warn('Admin sync:', err);
+    }
+  })();
+  </script>
 
   <!-- ============ SCRIPTS ============ -->
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
